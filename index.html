@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TodoFloat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="renderer/style.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ── Titlebar / drag region ── -->
+    <div id="titlebar">
+      <div id="drag-region">
+        <span id="app-icon">✦</span>
+        <span id="app-title">TodoFloat</span>
+      </div>
+      <div id="titlebar-controls">
+        <button id="btn-pin" title="Toggle always on top">📌</button>
+        <button id="btn-min" title="Minimize">—</button>
+        <button id="btn-close" title="Close to tray">✕</button>
+      </div>
+    </div>
+
+    <!-- ── Stats bar ── -->
+    <div id="stats-bar">
+      <span id="stat-total"></span>
+      <span id="stat-done"></span>
+      <span id="stat-overdue"></span>
+    </div>
+
+    <!-- ── Filter tabs ── -->
+    <div id="filter-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="today">Today</button>
+      <button class="filter-btn" data-filter="pending">Pending</button>
+      <button class="filter-btn" data-filter="done">Done</button>
+    </div>
+
+    <!-- ── Priority filter ── -->
+    <div id="priority-bar">
+      <button class="prio-btn active" data-prio="all">All</button>
+      <button class="prio-btn" data-prio="high">🔴 High</button>
+      <button class="prio-btn" data-prio="med">🟡 Med</button>
+      <button class="prio-btn" data-prio="low">🟢 Low</button>
+    </div>
+
+    <!-- ── Task list ── -->
+    <div id="task-list-wrapper">
+      <ul id="task-list"></ul>
+      <div id="empty-state">
+        <span>✦</span>
+        <p>Nothing here yet.<br/>Add your first task!</p>
+      </div>
+    </div>
+
+    <!-- ── Add task button ── -->
+    <button id="fab" title="Add Task">＋</button>
+
+  </div>
+
+  <!-- ── Add / Edit Modal ── -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal">
+      <div id="modal-header">
+        <h2 id="modal-title">New Task</h2>
+        <button id="modal-close">✕</button>
+      </div>
+
+      <div class="field">
+        <label>Task title</label>
+        <input type="text" id="inp-title" placeholder="What needs to be done?" maxlength="120" />
+      </div>
+
+      <div class="field">
+        <label>Notes</label>
+        <textarea id="inp-notes" placeholder="Optional notes…" rows="2"></textarea>
+      </div>
+
+      <div class="field-row">
+        <div class="field half">
+          <label>Priority</label>
+          <div id="prio-select">
+            <button class="prio-opt" data-val="high">🔴 High</button>
+            <button class="prio-opt active" data-val="med">🟡 Med</button>
+            <button class="prio-opt" data-val="low">🟢 Low</button>
+          </div>
+        </div>
+        <div class="field half">
+          <label>Label / Tag</label>
+          <input type="text" id="inp-label" placeholder="e.g. Work, Personal" maxlength="20" />
+        </div>
+      </div>
+
+      <!-- Due date + time picker -->
+      <div class="field">
+        <label>Due date & time</label>
+        <div id="datetime-picker">
+          <div id="calendar-wrap"></div>
+          <div id="time-wrap">
+            <div id="time-display">
+              <span id="time-hrs">12</span>
+              <span class="time-sep">:</span>
+              <span id="time-mins">00</span>
+              <span id="time-ampm">AM</span>
+            </div>
+            <div id="time-sliders">
+              <div class="slider-row">
+                <span class="slider-lbl">H</span>
+                <input type="range" id="sl-hrs" min="1" max="12" value="12" />
+              </div>
+              <div class="slider-row">
+                <span class="slider-lbl">M</span>
+                <input type="range" id="sl-mins" min="0" max="59" value="0" />
+              </div>
+              <button id="ampm-toggle">AM</button>
+            </div>
+          </div>
+        </div>
+        <div id="due-clear-row">
+          <span id="due-preview"></span>
+          <button id="due-clear" class="hidden">Clear date</button>
+        </div>
+      </div>
+
+      <!-- Subtasks -->
+      <div class="field">
+        <label>Subtasks</label>
+        <div id="subtask-input-row">
+          <input type="text" id="inp-subtask" placeholder="Add subtask…" maxlength="80" />
+          <button id="btn-add-subtask">＋</button>
+        </div>
+        <ul id="subtask-list"></ul>
+      </div>
+
+      <div id="modal-actions">
+        <button id="btn-cancel">Cancel</button>
+        <button id="btn-save">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer/app.js"></script>
+</body>
+</html>

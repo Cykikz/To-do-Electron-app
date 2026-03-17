@@ -32,6 +32,13 @@
       <span id="stat-overdue"></span>
     </div>
 
+    <!-- ── Search bar ── -->
+    <div id="search-bar">
+      <span id="search-icon">⌕</span>
+      <input type="text" id="inp-search" placeholder="Search tasks…" maxlength="80" autocomplete="off" />
+      <button id="search-clear" class="hidden" title="Clear search">✕</button>
+    </div>
+
     <!-- ── Filter tabs ── -->
     <div id="filter-bar">
       <button class="filter-btn active" data-filter="all">All</button>
@@ -142,6 +149,9 @@
       </div>
     </div>
   </div>
+
+  <!-- ── Toast notifications ── -->
+  <div id="toast-container"></div>
 
   <script src="renderer/app.js"></script>
 </body>

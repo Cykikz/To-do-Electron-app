@@ -694,3 +694,154 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* ── Utility ──────────────────────────────────────────────────────────────── */
 .hidden { display: none !important; }
+
+/* ── Search bar ────────────────────────────────────────────────────────────── */
+#search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+#search-icon {
+  color: var(--text3);
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+  transform: scaleX(-1);
+  display: inline-block;
+}
+
+#inp-search {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 9px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 12px;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+#inp-search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+#inp-search::placeholder { color: var(--text3); }
+
+#search-clear {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+#search-clear:hover { background: var(--bg3); color: var(--red); }
+
+/* ── Drag to reorder ───────────────────────────────────────────────────────── */
+.drag-handle {
+  color: var(--text3);
+  font-size: 13px;
+  cursor: grab;
+  padding: 0 2px;
+  flex-shrink: 0;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity var(--transition);
+  user-select: none;
+}
+.task-card:hover .drag-handle { opacity: 1; }
+.drag-handle:active { cursor: grabbing; }
+
+.task-card.dragging {
+  opacity: 0.4;
+  transform: scale(0.97);
+  border-style: dashed;
+}
+
+.task-card.drag-over {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow), 0 2px 16px rgba(0,0,0,.3);
+  transform: translateY(-2px);
+}
+
+/* ── Delete animation ──────────────────────────────────────────────────────── */
+.task-card.removing {
+  animation: removeCard 0.22s ease forwards;
+}
+@keyframes removeCard {
+  to {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+    max-height: 0;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* ── Toast notifications ───────────────────────────────────────────────────── */
+#toast-container {
+  position: fixed;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 9999;
+  pointer-events: none;
+  width: 90%;
+}
+
+.toast {
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font);
+  border: 1px solid transparent;
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transform: translateY(8px) scale(0.95);
+  transition: opacity .2s ease, transform .2s cubic-bezier(.34,1.56,.64,1);
+  white-space: nowrap;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.toast.hide {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.95);
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+.toast-success {
+  background: rgba(78,203,113,.15);
+  border-color: rgba(78,203,113,.35);
+  color: var(--green);
+}
+
+.toast-error {
+  background: rgba(255,94,108,.12);
+  border-color: rgba(255,94,108,.3);
+  color: var(--red);
+}
+
+.toast-info {
+  background: rgba(124,106,247,.13);
+  border-color: rgba(124,106,247,.3);
+  color: var(--accent2);
+}

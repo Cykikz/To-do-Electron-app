@@ -6,6 +6,8 @@ let tasks = [];
 let filter = 'all';
 let prioFilter = 'all';
 let editingId = null;
+let searchQuery = '';
+let dragSrcId = null;
 
 // modal drafts
 let draftSubtasks = [];
@@ -90,6 +92,16 @@ function getFilteredTasks() {
     // priority filter
     if (prioFilter !== 'all' && t.priority !== prioFilter) return false;
 
+    // search filter
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const hit = t.title.toLowerCase().includes(q)
+        || (t.notes  || '').toLowerCase().includes(q)
+        || (t.label  || '').toLowerCase().includes(q)
+        || (t.subtasks || []).some(s => s.text.toLowerCase().includes(q));
+      if (!hit) return false;
+    }
+
     return true;
   });
 }
@@ -127,8 +139,10 @@ function buildTaskCard(t) {
   const subDone = sub.filter(s => s.done).length;
   const subPct = sub.length > 0 ? Math.round((subDone / sub.length) * 100) : 0;
 
+  li.draggable = true;
   li.innerHTML = `
     <div class="task-top">
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="task-check${t.done ? ' checked' : ''}" data-action="toggle"></div>
       <div class="task-body">
         <div class="task-title">${escHtml(t.title)}</div>
@@ -168,13 +182,47 @@ function buildTaskCard(t) {
     if (subIdx !== undefined){ toggleSubtask(t.id, parseInt(subIdx)); }
   });
 
+  // drag-to-reorder events
+  li.addEventListener('dragstart', e => {
+    dragSrcId = t.id;
+    setTimeout(() => li.classList.add('dragging'), 0);
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  li.addEventListener('dragend', () => {
+    li.classList.remove('dragging');
+    document.querySelectorAll('.task-card').forEach(c => c.classList.remove('drag-over'));
+  });
+  li.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    document.querySelectorAll('.task-card').forEach(c => c.classList.remove('drag-over'));
+    if (dragSrcId !== t.id) li.classList.add('drag-over');
+  });
+  li.addEventListener('drop', e => {
+    e.preventDefault();
+    if (dragSrcId === t.id) return;
+    // reorder in master tasks array
+    const srcIdx  = tasks.findIndex(x => x.id === dragSrcId);
+    const destIdx = tasks.findIndex(x => x.id === t.id);
+    if (srcIdx < 0 || destIdx < 0) return;
+    const [moved] = tasks.splice(srcIdx, 1);
+    tasks.splice(destIdx, 0, moved);
+    save();
+    renderAll();
+    toast('Task reordered', 'info');
+  });
+
   return li;
 }
 
 // ── Task CRUD ─────────────────────────────────────────────────────────────────
 function toggleTask(id) {
   const t = tasks.find(x => x.id === id);
-  if (t) { t.done = !t.done; save(); renderAll(); }
+  if (t) {
+    t.done = !t.done;
+    save(); renderAll();
+    if (t.done) toast('Done! 🎉', 'success');
+  }
 }
 
 function toggleSubtask(taskId, idx) {
@@ -186,8 +234,18 @@ function toggleSubtask(taskId, idx) {
 }
 
 function deleteTask(id) {
-  tasks = tasks.filter(t => t.id !== id);
-  save(); renderAll();
+  const card = document.querySelector(`.task-card[data-id="${id}"]`);
+  if (card) {
+    card.classList.add('removing');
+    setTimeout(() => {
+      tasks = tasks.filter(t => t.id !== id);
+      save(); renderAll();
+    }, 220);
+  } else {
+    tasks = tasks.filter(t => t.id !== id);
+    save(); renderAll();
+  }
+  toast('Task deleted', 'error');
 }
 
 function getSelectedPriority() {
@@ -219,7 +277,9 @@ function saveTask() {
     tasks.unshift({ id: uid(), ...taskData });
   }
 
+  const isEdit = !!editingId;
   save(); renderAll(); closeModal();
+  toast(isEdit ? 'Task updated ✓' : 'Task added ✓', 'success');
 }
 
 // ── Due timestamp ─────────────────────────────────────────────────────────────
@@ -517,5 +577,51 @@ function formatDue(ts) {
   return d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + timeStr;
 }
 
+// ── Toast ────────────────────────────────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  // trigger enter animation
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => {
+    el.classList.remove('show');
+    el.classList.add('hide');
+    setTimeout(() => el.remove(), 300);
+  }, 2200);
+}
+
+// ── Search ────────────────────────────────────────────────────────────────────
+function attachSearchListeners() {
+  const inp   = document.getElementById('inp-search');
+  const clear = document.getElementById('search-clear');
+
+  inp.addEventListener('input', () => {
+    searchQuery = inp.value.trim();
+    clear.classList.toggle('hidden', !searchQuery);
+    renderAll();
+  });
+
+  clear.addEventListener('click', () => {
+    inp.value = '';
+    searchQuery = '';
+    clear.classList.add('hidden');
+    inp.focus();
+    renderAll();
+  });
+
+  // Ctrl+F focuses search
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+      e.preventDefault();
+      inp.focus();
+      inp.select();
+    }
+  });
+}
+
 // ── Boot ──────────────────────────────────────────────────────────────────────
+attachSearchListeners();
 init();

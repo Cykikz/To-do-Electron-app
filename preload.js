@@ -19,4 +19,7 @@ contextBridge.exposeInMainWorld('todoAPI', {
   // Settings
   getSettings: () => ipcRenderer.invoke('settings:get'),
   setStartup: (val) => ipcRenderer.send('settings:setStartup', val),
+
+  // Movable
+  setMovable: (val) => ipcRenderer.send('window:setMovable', val),
 });

@@ -508,6 +508,8 @@ function attachGlobalListeners() {
   btnPin.addEventListener('click', () => {
     const pinned = btnPin.classList.toggle('pinned');
     window.todoAPI.togglePin(pinned);
+    // Lock/unlock dragging
+    window.todoAPI.setMovable(!pinned);
   });
 
   // Collapse toggle

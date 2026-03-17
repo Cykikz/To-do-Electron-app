@@ -1234,3 +1234,21 @@ input[type="range"]::-webkit-slider-thumb {
   border-color: rgba(124, 106, 247, .3);
   color: var(--accent2);
 }
+
+/* ── Collapse / Expand ────────────────────────────────────────────────────── */
+#app.collapsed #stats-bar,
+#app.collapsed #search-bar,
+#app.collapsed #filter-bar,
+#app.collapsed #priority-bar,
+#app.collapsed #task-list-wrapper,
+#app.collapsed #fab {
+  display: none;
+}
+
+#btn-collapse {
+  transition: transform 0.25s ease;
+}
+
+#app.collapsed #btn-collapse {
+  transform: rotate(-90deg);
+}

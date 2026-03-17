@@ -113,8 +113,8 @@ ipcMain.handle('tasks:load', () => store.get('tasks', []));
 ipcMain.handle('tasks:save', (_, tasks) => { store.set('tasks', tasks); return true; });
 
 ipcMain.on('window:minimize', () => mainWindow && mainWindow.minimize());
-ipcMain.on('window:hide',     () => mainWindow && mainWindow.hide());
-ipcMain.on('window:close',    () => app.quit());
+ipcMain.on('window:hide', () => mainWindow && mainWindow.hide());
+ipcMain.on('window:close', () => app.quit());
 
 ipcMain.on('window:togglePin', (_, val) => {
   store.set('alwaysOnTop', val);
@@ -128,4 +128,18 @@ ipcMain.handle('settings:get', () => ({
 
 ipcMain.on('settings:setStartup', (_, val) => {
   app.setLoginItemSettings({ openAtLogin: val });
+});
+
+ipcMain.on('window:setCollapsed', (_, collapsed) => {
+  if (!mainWindow) return;
+  const bounds = mainWindow.getBounds();
+  if (collapsed) {
+    store.set('expandedHeight', bounds.height);
+    mainWindow.setResizable(false);
+    mainWindow.setSize(bounds.width, 48, true); // animate
+  } else {
+    const h = store.get('expandedHeight', 600);
+    mainWindow.setResizable(true);
+    mainWindow.setSize(bounds.width, h, true);
+  }
 });

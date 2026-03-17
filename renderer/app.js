@@ -11,35 +11,35 @@ let dragSrcId = null;
 
 // modal drafts
 let draftSubtasks = [];
-let selectedDate  = null;   // { year, month (0-based), day }
-let calViewYear   = new Date().getFullYear();
-let calViewMonth  = new Date().getMonth();
+let selectedDate = null;   // { year, month (0-based), day }
+let calViewYear = new Date().getFullYear();
+let calViewMonth = new Date().getMonth();
 
 // ── DOM refs ─────────────────────────────────────────────────────────────────
-const taskList     = document.getElementById('task-list');
-const emptyState   = document.getElementById('empty-state');
-const fab          = document.getElementById('fab');
+const taskList = document.getElementById('task-list');
+const emptyState = document.getElementById('empty-state');
+const fab = document.getElementById('fab');
 const modalOverlay = document.getElementById('modal-overlay');
-const modalTitle   = document.getElementById('modal-title');
-const inpTitle     = document.getElementById('inp-title');
-const inpNotes     = document.getElementById('inp-notes');
-const inpLabel     = document.getElementById('inp-label');
-const inpSubtask   = document.getElementById('inp-subtask');
-const subtaskList  = document.getElementById('subtask-list');
-const duePreview   = document.getElementById('due-preview');
-const dueClear     = document.getElementById('due-clear');
-const slHrs        = document.getElementById('sl-hrs');
-const slMins       = document.getElementById('sl-mins');
-const ampmToggle   = document.getElementById('ampm-toggle');
-const timeHrs      = document.getElementById('time-hrs');
-const timeMins     = document.getElementById('time-mins');
-const timeAmpm     = document.getElementById('time-ampm');
-const btnSave      = document.getElementById('btn-save');
-const btnCancel    = document.getElementById('btn-cancel');
-const btnPin       = document.getElementById('btn-pin');
-const statTotal    = document.getElementById('stat-total');
-const statDone     = document.getElementById('stat-done');
-const statOverdue  = document.getElementById('stat-overdue');
+const modalTitle = document.getElementById('modal-title');
+const inpTitle = document.getElementById('inp-title');
+const inpNotes = document.getElementById('inp-notes');
+const inpLabel = document.getElementById('inp-label');
+const inpSubtask = document.getElementById('inp-subtask');
+const subtaskList = document.getElementById('subtask-list');
+const duePreview = document.getElementById('due-preview');
+const dueClear = document.getElementById('due-clear');
+const slHrs = document.getElementById('sl-hrs');
+const slMins = document.getElementById('sl-mins');
+const ampmToggle = document.getElementById('ampm-toggle');
+const timeHrs = document.getElementById('time-hrs');
+const timeMins = document.getElementById('time-mins');
+const timeAmpm = document.getElementById('time-ampm');
+const btnSave = document.getElementById('btn-save');
+const btnCancel = document.getElementById('btn-cancel');
+const btnPin = document.getElementById('btn-pin');
+const statTotal = document.getElementById('stat-total');
+const statDone = document.getElementById('stat-done');
+const statOverdue = document.getElementById('stat-overdue');
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
@@ -65,12 +65,12 @@ function renderAll() {
 
 function renderStats() {
   const now = Date.now();
-  const total   = tasks.length;
-  const done    = tasks.filter(t => t.done).length;
+  const total = tasks.length;
+  const done = tasks.filter(t => t.done).length;
   const overdue = tasks.filter(t => !t.done && t.dueTs && t.dueTs < now).length;
 
-  statTotal.textContent  = `${total} task${total !== 1 ? 's' : ''}`;
-  statDone.textContent   = `${done} done`;
+  statTotal.textContent = `${total} task${total !== 1 ? 's' : ''}`;
+  statDone.textContent = `${done} done`;
   statOverdue.textContent = overdue > 0 ? `${overdue} overdue` : '';
   statOverdue.style.display = overdue > 0 ? '' : 'none';
 }
@@ -87,7 +87,7 @@ function getFilteredTasks() {
       if (dateStr(d.getFullYear(), d.getMonth(), d.getDate()) !== todayStr) return false;
     }
     if (filter === 'pending' && t.done) return false;
-    if (filter === 'done'    && !t.done) return false;
+    if (filter === 'done' && !t.done) return false;
 
     // priority filter
     if (prioFilter !== 'all' && t.priority !== prioFilter) return false;
@@ -96,8 +96,8 @@ function getFilteredTasks() {
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       const hit = t.title.toLowerCase().includes(q)
-        || (t.notes  || '').toLowerCase().includes(q)
-        || (t.label  || '').toLowerCase().includes(q)
+        || (t.notes || '').toLowerCase().includes(q)
+        || (t.label || '').toLowerCase().includes(q)
         || (t.subtasks || []).some(s => s.text.toLowerCase().includes(q));
       if (!hit) return false;
     }
@@ -177,9 +177,9 @@ function buildTaskCard(t) {
     const subIdx = e.target.closest('[data-sub]')?.dataset.sub;
 
     if (action === 'toggle') { toggleTask(t.id); return; }
-    if (action === 'edit')   { openEditModal(t.id); return; }
+    if (action === 'edit') { openEditModal(t.id); return; }
     if (action === 'delete') { deleteTask(t.id); return; }
-    if (subIdx !== undefined){ toggleSubtask(t.id, parseInt(subIdx)); }
+    if (subIdx !== undefined) { toggleSubtask(t.id, parseInt(subIdx)); }
   });
 
   // drag-to-reorder events
@@ -202,7 +202,7 @@ function buildTaskCard(t) {
     e.preventDefault();
     if (dragSrcId === t.id) return;
     // reorder in master tasks array
-    const srcIdx  = tasks.findIndex(x => x.id === dragSrcId);
+    const srcIdx = tasks.findIndex(x => x.id === dragSrcId);
     const destIdx = tasks.findIndex(x => x.id === t.id);
     if (srcIdx < 0 || destIdx < 0) return;
     const [moved] = tasks.splice(srcIdx, 1);
@@ -260,12 +260,12 @@ function saveTask() {
   const dueTs = buildDueTs();
   const taskData = {
     title,
-    notes:    inpNotes.value.trim(),
-    label:    inpLabel.value.trim(),
+    notes: inpNotes.value.trim(),
+    label: inpLabel.value.trim(),
     priority: getSelectedPriority(),
     dueTs,
     subtasks: draftSubtasks.slice(),
-    done:     false
+    done: false
   };
 
   if (editingId) {
@@ -298,7 +298,7 @@ function to24(h, ampm) {
 function updateTimeDisplay() {
   const h = parseInt(slHrs.value);
   const m = parseInt(slMins.value);
-  timeHrs.textContent  = String(h).padStart(2, '0');
+  timeHrs.textContent = String(h).padStart(2, '0');
   timeMins.textContent = String(m).padStart(2, '0');
   timeAmpm.textContent = ampmToggle.textContent;
   updateDuePreview();
@@ -318,13 +318,13 @@ function updateDuePreview() {
 // ── Calendar ──────────────────────────────────────────────────────────────────
 function buildCalendar(year, month) {
   const wrap = document.getElementById('calendar-wrap');
-  const DAYS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
-  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   const today = new Date();
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const daysInPrev  = new Date(year, month, 0).getDate();
+  const daysInPrev = new Date(year, month, 0).getDate();
 
   let html = `
     <div class="cal-header">
@@ -344,7 +344,7 @@ function buildCalendar(year, month) {
   // Current month
   for (let d = 1; d <= daysInMonth; d++) {
     const isToday = (d === today.getDate() && month === today.getMonth() && year === today.getFullYear());
-    const isSel   = (selectedDate && selectedDate.day === d && selectedDate.month === month && selectedDate.year === year);
+    const isSel = (selectedDate && selectedDate.day === d && selectedDate.month === month && selectedDate.year === year);
     html += `<div class="cal-day${isToday ? ' today' : ''}${isSel ? ' selected' : ''}" data-d="${d}">${d}</div>`;
   }
 
@@ -412,17 +412,17 @@ function openAddModal() {
   inpNotes.value = '';
   inpLabel.value = '';
   draftSubtasks = [];
-  selectedDate  = null;
+  selectedDate = null;
 
   // reset priority to med
   document.querySelectorAll('.prio-opt').forEach(b => b.classList.toggle('active', b.dataset.val === 'med'));
 
   const now = new Date();
-  calViewYear  = now.getFullYear();
+  calViewYear = now.getFullYear();
   calViewMonth = now.getMonth();
-  slHrs.value  = 12; slMins.value = 0;
+  slHrs.value = 12; slMins.value = 0;
   ampmToggle.textContent = 'AM';
-  timeAmpm.textContent   = 'AM';
+  timeAmpm.textContent = 'AM';
 
   renderDraftSubtasks();
   buildCalendar(calViewYear, calViewMonth);
@@ -439,30 +439,30 @@ function openEditModal(id) {
   inpTitle.value = t.title;
   inpNotes.value = t.notes || '';
   inpLabel.value = t.label || '';
-  draftSubtasks  = (t.subtasks || []).map(s => ({ ...s }));
+  draftSubtasks = (t.subtasks || []).map(s => ({ ...s }));
 
   document.querySelectorAll('.prio-opt').forEach(b => b.classList.toggle('active', b.dataset.val === t.priority));
 
   if (t.dueTs) {
     const d = new Date(t.dueTs);
     selectedDate = { year: d.getFullYear(), month: d.getMonth(), day: d.getDate() };
-    calViewYear  = d.getFullYear();
+    calViewYear = d.getFullYear();
     calViewMonth = d.getMonth();
     let h = d.getHours();
     const ampm = h >= 12 ? 'PM' : 'AM';
     h = h % 12 || 12;
-    slHrs.value  = h;
+    slHrs.value = h;
     slMins.value = d.getMinutes();
     ampmToggle.textContent = ampm;
-    timeAmpm.textContent   = ampm;
+    timeAmpm.textContent = ampm;
   } else {
     selectedDate = null;
     const now = new Date();
-    calViewYear  = now.getFullYear();
+    calViewYear = now.getFullYear();
     calViewMonth = now.getMonth();
     slHrs.value = 12; slMins.value = 0;
     ampmToggle.textContent = 'AM';
-    timeAmpm.textContent   = 'AM';
+    timeAmpm.textContent = 'AM';
   }
 
   renderDraftSubtasks();
@@ -494,6 +494,11 @@ function attachGlobalListeners() {
   });
 
   // Window controls
+  document.getElementById('btn-collapse').addEventListener('click', () => {
+    const app = document.getElementById('app');
+    const isCollapsed = app.classList.toggle('collapsed');
+    window.todoAPI.setCollapsed(isCollapsed);
+  });
   document.getElementById('btn-min').addEventListener('click', () => window.todoAPI.minimize());
   document.getElementById('btn-close').addEventListener('click', () => window.todoAPI.hide());
   btnPin.addEventListener('click', () => {
@@ -556,7 +561,7 @@ function attachGlobalListeners() {
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
 function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function dateStr(y, m, d) { return `${y}-${m}-${d}`; }
@@ -565,7 +570,7 @@ function formatDue(ts) {
   const d = new Date(ts);
   const today = new Date();
   const todayStr = dateStr(today.getFullYear(), today.getMonth(), today.getDate());
-  const dStr     = dateStr(d.getFullYear(), d.getMonth(), d.getDate());
+  const dStr = dateStr(d.getFullYear(), d.getMonth(), d.getDate());
 
   const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   if (dStr === todayStr) return `Today ${timeStr}`;
@@ -595,7 +600,7 @@ function toast(msg, type = 'info') {
 
 // ── Search ────────────────────────────────────────────────────────────────────
 function attachSearchListeners() {
-  const inp   = document.getElementById('inp-search');
+  const inp = document.getElementById('inp-search');
   const clear = document.getElementById('search-clear');
 
   inp.addEventListener('input', () => {

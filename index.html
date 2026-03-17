@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TodoFloat</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="renderer/style.css" />
 </head>
+
 <body>
   <div id="app">
 
@@ -19,8 +23,8 @@
         <span id="app-title">TodoFloat</span>
       </div>
       <div id="titlebar-controls">
-        <button id="btn-pin" title="Toggle always on top">📌</button>
-        <button id="btn-min" title="Minimize">—</button>
+        <button id="btn-collapse" title="Collapse / Expand">▾</button>
+        <button id="btn-pin" title="Toggle always on top">📌</button> <button id="btn-min" title="Minimize">—</button>
         <button id="btn-close" title="Close to tray">✕</button>
       </div>
     </div>
@@ -60,7 +64,7 @@
       <ul id="task-list"></ul>
       <div id="empty-state">
         <span>✦</span>
-        <p>Nothing here yet.<br/>Add your first task!</p>
+        <p>Nothing here yet.<br />Add your first task!</p>
       </div>
     </div>
 
@@ -155,4 +159,5 @@
 
   <script src="renderer/app.js"></script>
 </body>
+
 </html>

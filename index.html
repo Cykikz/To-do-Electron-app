@@ -16,7 +16,7 @@
 <body>
   <div id="app">
 
-    <!-- ── Titlebar / drag region ── -->
+    <!-- ── Titlebar — entire bar is draggable via JS ── -->
     <div id="titlebar">
       <div id="drag-region">
         <span id="app-icon">✦</span>
@@ -24,7 +24,8 @@
       </div>
       <div id="titlebar-controls">
         <button id="btn-collapse" title="Collapse / Expand">▾</button>
-        <button id="btn-pin" title="Toggle always on top">📌</button> <button id="btn-min" title="Minimize">—</button>
+        <button id="btn-pin" title="Toggle always on top">📌</button>
+        <button id="btn-min" title="Minimize">—</button>
         <button id="btn-close" title="Close to tray">✕</button>
       </div>
     </div>
@@ -71,9 +72,12 @@
     <!-- ── Add task button ── -->
     <button id="fab" title="Add Task">＋</button>
 
+    <!-- ── Resize grip ── -->
+    <div id="resize-grip"></div>
+
   </div>
 
-  <!-- ── Add / Edit Modal ── -->
+  <!-- ── Modal ── -->
   <div id="modal-overlay" class="hidden">
     <div id="modal">
       <div id="modal-header">
@@ -106,7 +110,6 @@
         </div>
       </div>
 
-      <!-- Due date + time picker -->
       <div class="field">
         <label>Due date & time</label>
         <div id="datetime-picker">
@@ -137,7 +140,6 @@
         </div>
       </div>
 
-      <!-- Subtasks -->
       <div class="field">
         <label>Subtasks</label>
         <div id="subtask-input-row">
@@ -154,9 +156,7 @@
     </div>
   </div>
 
-  <!-- ── Toast notifications ── -->
   <div id="toast-container"></div>
-
   <script src="renderer/app.js"></script>
 </body>
 

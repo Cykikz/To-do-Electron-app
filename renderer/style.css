@@ -49,9 +49,8 @@ body {
   width: 100%;
   height: 100vh;
   background: var(--bg);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow), 0 0 0 1px rgba(124, 106, 247, .08) inset;
+  border-radius: 0;
+  border: none;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -67,15 +66,14 @@ body {
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-  -webkit-app-region: no-drag;
+  -webkit-app-region: drag;
+  user-select: none;
 }
 
 #drag-region {
   display: flex;
   align-items: center;
   gap: 7px;
-  -webkit-app-region: drag;
-  cursor: grab;
   flex: 1;
 }
 
@@ -798,7 +796,7 @@ textarea::placeholder {
   pointer-events: none;
 }
 
-/* Time — sits below calendar as a horizontal row */
+/* Time */
 #time-wrap {
   display: flex;
   flex-direction: row;
@@ -821,7 +819,6 @@ textarea::placeholder {
   padding: 5px 8px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  flex-shrink: 0;
 }
 
 .time-sep {
@@ -843,8 +840,6 @@ textarea::placeholder {
 
 #time-sliders {
   flex: 1;
-  min-width: 0;
-  overflow: hidden;
 }
 
 .slider-row {
@@ -881,7 +876,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 #ampm-toggle {
-  width: 42px;
+  width: 100%;
   padding: 4px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--accent);
@@ -890,7 +885,6 @@ input[type="range"]::-webkit-slider-thumb {
   font-family: var(--mono);
   font-size: 11px;
   cursor: pointer;
-  flex-shrink: 0;
   transition: all var(--transition);
 }
 
@@ -1066,7 +1060,7 @@ input[type="range"]::-webkit-slider-thumb {
   display: none !important;
 }
 
-/* ── Search bar ───────────────────────────────────────────────────────────── */
+/* ── Search bar ────────────────────────────────────────────────────────────── */
 #search-bar {
   display: flex;
   align-items: center;
@@ -1129,7 +1123,7 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--red);
 }
 
-/* ── Drag to reorder ──────────────────────────────────────────────────────── */
+/* ── Drag to reorder ───────────────────────────────────────────────────────── */
 .drag-handle {
   color: var(--text3);
   font-size: 13px;
@@ -1162,7 +1156,7 @@ input[type="range"]::-webkit-slider-thumb {
   transform: translateY(-2px);
 }
 
-/* ── Delete animation ─────────────────────────────────────────────────────── */
+/* ── Delete animation ──────────────────────────────────────────────────────── */
 .task-card.removing {
   animation: removeCard 0.22s ease forwards;
 }
@@ -1177,7 +1171,7 @@ input[type="range"]::-webkit-slider-thumb {
   }
 }
 
-/* ── Toast notifications ──────────────────────────────────────────────────── */
+/* ── Toast notifications ───────────────────────────────────────────────────── */
 #toast-container {
   position: fixed;
   bottom: 70px;
@@ -1241,14 +1235,52 @@ input[type="range"]::-webkit-slider-thumb {
 #app.collapsed #filter-bar,
 #app.collapsed #priority-bar,
 #app.collapsed #task-list-wrapper,
-#app.collapsed #fab {
+#app.collapsed #fab,
+#app.collapsed #resize-grip {
   display: none;
 }
 
 #btn-collapse {
+  font-size: 13px;
   transition: transform 0.25s ease;
 }
 
-#app.collapsed #btn-collapse {
+#btn-collapse.collapsed {
   transform: rotate(-90deg);
+}
+
+/* ── Resize grip ──────────────────────────────────────────────────────────── */
+#resize-grip {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  cursor: nwse-resize;
+  z-index: 50;
+  opacity: 0.3;
+  transition: opacity 0.15s ease;
+}
+
+#resize-grip:hover {
+  opacity: 1;
+}
+
+/* Three diagonal tick marks */
+#resize-grip::before {
+  content: '';
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 10px;
+  height: 10px;
+  background:
+    linear-gradient(135deg,
+      transparent 0%, transparent 30%,
+      var(--accent) 30%, var(--accent) 40%,
+      transparent 40%, transparent 55%,
+      var(--accent) 55%, var(--accent) 65%,
+      transparent 65%, transparent 80%,
+      var(--accent) 80%, var(--accent) 90%,
+      transparent 90%);
 }

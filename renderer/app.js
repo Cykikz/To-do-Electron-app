@@ -46,7 +46,15 @@ async function init() {
   tasks = await window.todoAPI.loadTasks();
 
   const settings = await window.todoAPI.getSettings();
-  if (settings.alwaysOnTop) btnPin.classList.add('pinned');
+  // Set pin button visual state from saved setting
+  btnPin.classList.toggle('pinned', settings.alwaysOnTop);
+
+  // Restore collapsed state
+  if (settings.collapsed) {
+    document.getElementById('app').classList.add('collapsed');
+    const btn = document.getElementById('btn-collapse');
+    if (btn) btn.classList.add('collapsed');
+  }
 
   renderAll();
   attachGlobalListeners();
@@ -494,16 +502,20 @@ function attachGlobalListeners() {
   });
 
   // Window controls
-  document.getElementById('btn-collapse').addEventListener('click', () => {
-    const app = document.getElementById('app');
-    const isCollapsed = app.classList.toggle('collapsed');
-    window.todoAPI.setCollapsed(isCollapsed);
-  });
   document.getElementById('btn-min').addEventListener('click', () => window.todoAPI.minimize());
   document.getElementById('btn-close').addEventListener('click', () => window.todoAPI.hide());
+  // Pin toggle
   btnPin.addEventListener('click', () => {
     const pinned = btnPin.classList.toggle('pinned');
     window.todoAPI.togglePin(pinned);
+  });
+
+  // Collapse toggle
+  document.getElementById('btn-collapse').addEventListener('click', () => {
+    const appEl = document.getElementById('app');
+    const isCollapsed = appEl.classList.toggle('collapsed');
+    document.getElementById('btn-collapse').classList.toggle('collapsed', isCollapsed);
+    window.todoAPI.setCollapsed(isCollapsed);
   });
 
   // Filter tabs
@@ -626,6 +638,9 @@ function attachSearchListeners() {
     }
   });
 }
+
+// ── Native drag via JS (pura titlebar draggable) ─────────────────────────────
+
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 attachSearchListeners();

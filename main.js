@@ -25,10 +25,11 @@ function createWindow() {
     width: bounds.width,
     height: bounds.height,
     minWidth: 280,
-    minHeight: 48,
+    minHeight: 46,
     maxWidth: 560,
     frame: false,
     transparent: false,
+    backgroundColor: '#17171d',
     resizable: true,
     movable: true,
     alwaysOnTop: store.get('alwaysOnTop', true),
@@ -129,13 +130,18 @@ ipcMain.on('window:togglePin', (_, val) => {
 ipcMain.on('window:setCollapsed', (_, collapsed) => {
   if (!mainWindow) return;
   store.set('collapsed', collapsed);
+  const bounds = mainWindow.getBounds();
   if (collapsed) {
-    store.set('expandedHeight', mainWindow.getBounds().height);
+    store.set('expandedHeight', bounds.height);
+    store.set('expandedWidth', bounds.width);
     mainWindow.setResizable(false);
-    mainWindow.setSize(mainWindow.getBounds().width, 48, true);
+    mainWindow.setMinimumSize(280, 46);
+    mainWindow.setBounds({ x: bounds.x, y: bounds.y, width: bounds.width, height: 46 }, true);
   } else {
     const h = store.get('expandedHeight', 600);
-    mainWindow.setSize(mainWindow.getBounds().width, h, true);
+    const w = store.get('expandedWidth', 320);
+    mainWindow.setMinimumSize(280, 46);
+    mainWindow.setBounds({ x: bounds.x, y: bounds.y, width: w, height: h }, true);
     mainWindow.setResizable(true);
   }
 });

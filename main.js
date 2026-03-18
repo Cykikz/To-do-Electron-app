@@ -43,6 +43,9 @@ function createWindow() {
   });
 
   mainWindow.loadFile('index.html');
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.setOpacity(0.6);
+  });
 
   mainWindow.on('resize', () => {
     if (!mainWindow.isMinimized() && !store.get('collapsed', false)) {

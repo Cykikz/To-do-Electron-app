@@ -502,7 +502,7 @@ function attachGlobalListeners() {
   modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
   // Opacity on hover
   document.addEventListener('mouseenter', () => window.todoAPI.setOpacity(1));
-  document.addEventListener('mouseleave', () => window.todoAPI.setOpacity(0.4));
+  document.addEventListener('mouseleave', () => window.todoAPI.setOpacity(0.6));
   // Keyboard shortcuts
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeModal();

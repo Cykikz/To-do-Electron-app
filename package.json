@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win --portable"
+    "build": "electron-builder --win"
   },
   "dependencies": {
     "electron-store": "^8.1.0"
@@ -18,15 +18,21 @@
     "appId": "com.todo.sidebar",
     "productName": "TodoFloat",
     "win": {
-      "target": "portable",
-      "icon": "assets/icon.ico"
-    },
-    "portable": {
-      "artifactName": "TodoFloat.exe"
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     },
     "files": [
       "**/*",
       "!node_modules/.cache"
     ]
+  },
+  "portable": {
+    "artifactName": "TodoFloat.exe"
   }
 }

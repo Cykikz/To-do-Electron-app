@@ -160,3 +160,6 @@ ipcMain.on('settings:setStartup', (_, val) => {
 ipcMain.on('window:setMovable', (_, val) => {
   if (mainWindow) mainWindow.setMovable(val);
 });
+ipcMain.on('window:setOpacity', (_, val) => {
+  if (mainWindow) mainWindow.setOpacity(val);
+});

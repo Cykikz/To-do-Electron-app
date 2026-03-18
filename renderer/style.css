@@ -276,11 +276,22 @@ body {
 
 .task-card.done {
   opacity: .5;
+  transition: opacity .3s ease;
 }
 
 .task-card.done .task-title {
-  text-decoration: line-through;
   color: var(--text3);
+  background: linear-gradient(to right, var(--text3) 0%, var(--text3) 100%) no-repeat;
+  background-size: 0% 1px;
+  background-position: 0 60%;
+  animation: strikethrough .3s ease forwards;
+}
+
+@keyframes strikethrough {
+  to {
+    background-size: 100% 1px;
+    text-decoration: line-through;
+  }
 }
 
 .task-card.prio-high {
@@ -1195,6 +1206,10 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .toast {
+  pointer-events: all;
+}
+
+.toast {
   padding: 7px 14px;
   border-radius: 20px;
   font-size: 12px;
@@ -1303,4 +1318,21 @@ input[type="range"]::-webkit-slider-thumb {
       transparent 65%, transparent 80%,
       var(--accent) 80%, var(--accent) 90%,
       transparent 90%);
+}
+
+.toast-undo {
+  margin-left: 10px;
+  background: transparent;
+  border: 1px solid currentColor;
+  color: inherit;
+  border-radius: 20px;
+  padding: 1px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all var(--transition);
+}
+
+.toast-undo:hover {
+  background: rgba(255, 255, 255, .15);
 }

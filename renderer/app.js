@@ -242,7 +242,9 @@ function toggleSubtask(taskId, idx) {
 }
 
 function deleteTask(id) {
+  const deletedTask = tasks.find(t => t.id === id);
   const card = document.querySelector(`.task-card[data-id="${id}"]`);
+
   if (card) {
     card.classList.add('removing');
     setTimeout(() => {
@@ -253,7 +255,12 @@ function deleteTask(id) {
     tasks = tasks.filter(t => t.id !== id);
     save(); renderAll();
   }
-  toast('Task deleted', 'error');
+
+  toast('Task deleted', 'error', () => {
+    // Undo — task wapas add karo
+    tasks.unshift(deletedTask);
+    save(); renderAll();
+  });
 }
 
 function getSelectedPriority() {
@@ -597,19 +604,33 @@ function formatDue(ts) {
 }
 
 // ── Toast ────────────────────────────────────────────────────────────────────
-function toast(msg, type = 'info') {
+function toast(msg, type = 'info', undoFn = null) {
   const container = document.getElementById('toast-container');
   const el = document.createElement('div');
   el.className = `toast toast-${type}`;
-  el.textContent = msg;
+  el.innerHTML = undoFn
+    ? `<span>${msg}</span><button class="toast-undo">Undo</button>`
+    : `<span>${msg}</span>`;
   container.appendChild(el);
-  // trigger enter animation
   requestAnimationFrame(() => el.classList.add('show'));
-  setTimeout(() => {
+
+  let dismissed = false;
+  const dismiss = () => {
+    if (dismissed) return;
+    dismissed = true;
     el.classList.remove('show');
     el.classList.add('hide');
     setTimeout(() => el.remove(), 300);
-  }, 2200);
+  };
+
+  if (undoFn) {
+    el.querySelector('.toast-undo').addEventListener('click', () => {
+      undoFn();
+      dismiss();
+    });
+  }
+
+  setTimeout(dismiss, 4000);
 }
 
 // ── Search ────────────────────────────────────────────────────────────────────

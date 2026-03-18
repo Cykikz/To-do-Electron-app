@@ -22,4 +22,5 @@ contextBridge.exposeInMainWorld('todoAPI', {
 
   // Movable
   setMovable: (val) => ipcRenderer.send('window:setMovable', val),
+  setOpacity: (val) => ipcRenderer.send('window:setOpacity', val),
 });

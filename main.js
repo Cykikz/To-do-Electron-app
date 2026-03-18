@@ -43,9 +43,6 @@ function createWindow() {
   });
 
   mainWindow.loadFile('index.html');
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.setOpacity(0.6);
-  });
 
   mainWindow.on('resize', () => {
     if (!mainWindow.isMinimized() && !store.get('collapsed', false)) {
@@ -162,7 +159,4 @@ ipcMain.on('settings:setStartup', (_, val) => {
 
 ipcMain.on('window:setMovable', (_, val) => {
   if (mainWindow) mainWindow.setMovable(val);
-});
-ipcMain.on('window:setOpacity', (_, val) => {
-  if (mainWindow) mainWindow.setOpacity(val);
 });

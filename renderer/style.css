@@ -69,7 +69,6 @@ body {
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   -webkit-app-region: drag;
-  pointer-events: auto;
   user-select: none;
 }
 
@@ -84,6 +83,8 @@ body {
   align-items: center;
   gap: 7px;
   flex: 1;
+  -webkit-app-region: drag;
+
 }
 
 #app-icon {

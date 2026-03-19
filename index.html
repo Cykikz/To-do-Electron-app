@@ -16,7 +16,6 @@
 <body>
   <div id="app">
 
-    <!-- ── Titlebar — entire bar is draggable via JS ── -->
     <div id="titlebar">
       <div id="drag-region">
         <span id="app-icon">✦</span>
@@ -24,41 +23,41 @@
       </div>
       <div id="titlebar-controls">
         <button id="btn-collapse" title="Collapse / Expand">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
               stroke-linejoin="round" />
           </svg>
         </button>
         <button id="btn-pin" title="Pin window">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
             <path d="M12 2L14.5 9H21L15.5 13.5L17.5 21L12 17L6.5 21L8.5 13.5L3 9H9.5L12 2Z" stroke="currentColor"
               stroke-width="1.8" stroke-linejoin="round" />
           </svg>
         </button>
         <button id="btn-min" title="Minimize">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path d="M2 6H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
           </svg>
         </button>
         <button id="btn-close" title="Close to tray">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
           </svg>
         </button>
       </div>
     </div>
 
-    <!-- ── Stats bar ── -->
+    <!-- Stats bar -->
     <div id="stats-bar">
       <span id="stat-total"></span>
       <span id="stat-done"></span>
       <span id="stat-overdue"></span>
     </div>
 
-    <!-- ── Search bar ── -->
+    <!-- Search bar -->
     <div id="search-bar">
       <span id="search-icon">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
           <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.5" />
           <path d="M8.5 8.5L11 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
         </svg>
@@ -67,15 +66,26 @@
       <button id="search-clear" class="hidden" title="Clear search">✕</button>
     </div>
 
-    <!-- ── Filter tabs ── -->
+    <!-- Categories bar -->
+    <div id="categories-bar">
+      <button class="cat-btn active" data-cat="all">All</button>
+      <button id="btn-add-cat" title="Add category">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+          <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Filter tabs -->
     <div id="filter-bar">
       <button class="filter-btn active" data-filter="all">All</button>
       <button class="filter-btn" data-filter="today">Today</button>
+      <button class="filter-btn" data-filter="daily">Daily</button>
       <button class="filter-btn" data-filter="pending">Pending</button>
       <button class="filter-btn" data-filter="done">Done</button>
     </div>
 
-    <!-- ── Priority filter ── -->
+    <!-- Priority filter -->
     <div id="priority-bar">
       <button class="prio-btn active" data-prio="all">All</button>
       <button class="prio-btn" data-prio="high">🔴 High</button>
@@ -83,7 +93,7 @@
       <button class="prio-btn" data-prio="low">🟢 Low</button>
     </div>
 
-    <!-- ── Task list ── -->
+    <!-- Task list -->
     <div id="task-list-wrapper">
       <ul id="task-list"></ul>
       <div id="empty-state">
@@ -92,32 +102,26 @@
       </div>
     </div>
 
-    <!-- ── Add task button ── -->
-    <button id="fab" title="Add Task">＋</button>
-
-    <!-- ── Resize grip ── -->
+    <button id="fab" title="Add Task">+</button>
     <div id="resize-grip"></div>
 
   </div>
 
-  <!-- ── Modal ── -->
+  <!-- Modal -->
   <div id="modal-overlay" class="hidden">
     <div id="modal">
       <div id="modal-header">
         <h2 id="modal-title">New Task</h2>
         <button id="modal-close">✕</button>
       </div>
-
       <div class="field">
         <label>Task title</label>
         <input type="text" id="inp-title" placeholder="What needs to be done?" maxlength="120" />
       </div>
-
       <div class="field">
         <label>Notes</label>
         <textarea id="inp-notes" placeholder="Optional notes…" rows="2"></textarea>
       </div>
-
       <div class="field-row">
         <div class="field half">
           <label>Priority</label>
@@ -132,7 +136,6 @@
           <input type="text" id="inp-label" placeholder="e.g. Work, Personal" maxlength="20" />
         </div>
       </div>
-
       <div class="field">
         <label>Due date & time</label>
         <div id="datetime-picker">
@@ -162,7 +165,6 @@
           <button id="due-clear" class="hidden">Clear date</button>
         </div>
       </div>
-
       <div class="field">
         <label>Subtasks</label>
         <div id="subtask-input-row">
@@ -171,7 +173,6 @@
         </div>
         <ul id="subtask-list"></ul>
       </div>
-
       <div id="modal-actions">
         <button id="btn-cancel">Cancel</button>
         <button id="btn-save">Save Task</button>

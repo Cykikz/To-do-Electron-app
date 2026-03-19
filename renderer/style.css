@@ -11,7 +11,6 @@
   --bg: #0f0f12;
   --bg2: #17171d;
   --bg3: #1e1e27;
-  --bg4: #26263200;
   --surface: #1a1a22;
   --surface2: #222230;
   --border: #2e2e3e;
@@ -44,7 +43,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── App container ────────────────────────────────────────────────────────── */
 #app {
   width: 100%;
   height: 100vh;
@@ -72,10 +70,8 @@ body {
   user-select: none;
 }
 
-/* When collapsed — titlebar becomes the whole window, style it like a bar */
 #app.collapsed #titlebar {
   border-bottom: none;
-  background: var(--bg2);
 }
 
 #drag-region {
@@ -84,7 +80,6 @@ body {
   gap: 7px;
   flex: 1;
   -webkit-app-region: drag;
-
 }
 
 #app-icon {
@@ -158,7 +153,7 @@ body {
   border-color: rgba(255, 94, 108, .3) !important;
 }
 
-/* ── Filter bars ──────────────────────────────────────────────────────────── */
+/* ── Filter / Priority bars ───────────────────────────────────────────────── */
 #filter-bar,
 #priority-bar {
   display: flex;
@@ -206,6 +201,78 @@ body {
   color: #fff;
   border-color: var(--accent);
   box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* ── Categories bar ───────────────────────────────────────────────────────── */
+#categories-bar {
+  display: flex;
+  gap: 4px;
+  padding: 8px 10px 4px;
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.cat-btn {
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cat-btn:hover {
+  background: var(--bg3);
+  color: var(--text);
+}
+
+.cat-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.cat-del {
+  font-size: 9px;
+  opacity: 0.6;
+  margin-left: 2px;
+  transition: opacity var(--transition);
+}
+
+.cat-del:hover {
+  opacity: 1;
+}
+
+#btn-add-cat {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+#btn-add-cat:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* ── Task list ────────────────────────────────────────────────────────────── */
@@ -308,7 +375,6 @@ body {
   border-left: 3px solid var(--green);
 }
 
-/* task top row */
 .task-top {
   display: flex;
   align-items: flex-start;
@@ -358,6 +424,14 @@ body {
   line-height: 1.4;
 }
 
+.task-notes {
+  font-size: 11px;
+  color: var(--text2);
+  margin-top: 5px;
+  line-height: 1.5;
+  font-style: italic;
+}
+
 .task-actions {
   display: flex;
   gap: 2px;
@@ -393,7 +467,6 @@ body {
   color: var(--red) !important;
 }
 
-/* task meta */
 .task-meta {
   display: flex;
   flex-wrap: wrap;
@@ -432,13 +505,10 @@ body {
   border-color: rgba(245, 200, 66, .3);
 }
 
-/* task notes */
-.task-notes {
-  font-size: 11px;
-  color: var(--text2);
-  margin-top: 5px;
-  line-height: 1.5;
-  font-style: italic;
+.tag-daily {
+  background: rgba(78, 203, 113, .12);
+  color: var(--green);
+  border: 1px solid rgba(78, 203, 113, .3);
 }
 
 /* subtasks */
@@ -494,7 +564,6 @@ body {
   font-size: 7px;
 }
 
-/* subtask progress bar */
 .subtask-progress {
   height: 2px;
   background: var(--border);
@@ -508,6 +577,102 @@ body {
   background: var(--accent);
   border-radius: 2px;
   transition: width .3s ease;
+}
+
+/* drag handle */
+.drag-handle {
+  color: var(--text3);
+  font-size: 13px;
+  cursor: grab;
+  padding: 0 2px;
+  flex-shrink: 0;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity var(--transition);
+  user-select: none;
+}
+
+.task-card:hover .drag-handle {
+  opacity: 1;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.task-card.dragging {
+  opacity: 0.4;
+  transform: scale(0.97);
+  border-style: dashed;
+}
+
+.task-card.drag-over {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow), 0 2px 16px rgba(0, 0, 0, .3);
+  transform: translateY(-2px);
+}
+
+/* ── Recurring ────────────────────────────────────────────────────────────── */
+.task-recurring-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.task-card:hover .task-recurring-row {
+  opacity: 1;
+}
+
+.recurring-btn {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+
+.recurring-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-glow);
+}
+
+.recurring-btn.is-daily {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(78, 203, 113, .1);
+}
+
+.recurring-tooltip {
+  position: absolute;
+  bottom: 26px;
+  right: 0;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: all .15s ease;
+  font-family: var(--font);
+}
+
+.recurring-btn:hover .recurring-tooltip {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ── FAB ──────────────────────────────────────────────────────────────────── */
@@ -542,7 +707,7 @@ body {
   transform: scale(.96);
 }
 
-/* ── Modal overlay ────────────────────────────────────────────────────────── */
+/* ── Modal ────────────────────────────────────────────────────────────────── */
 #modal-overlay {
   position: fixed;
   inset: 0;
@@ -627,7 +792,7 @@ body {
   color: #fff;
 }
 
-/* ── Form fields ──────────────────────────────────────────────────────────── */
+/* Form fields */
 .field {
   margin-bottom: 14px;
 }
@@ -677,7 +842,7 @@ textarea::placeholder {
   color: var(--text3);
 }
 
-/* ── Priority select ──────────────────────────────────────────────────────── */
+/* Priority select */
 #prio-select {
   display: flex;
   gap: 4px;
@@ -719,7 +884,7 @@ textarea::placeholder {
   color: var(--green);
 }
 
-/* ── DateTime picker ──────────────────────────────────────────────────────── */
+/* DateTime picker */
 #datetime-picker {
   display: flex;
   flex-direction: column;
@@ -730,7 +895,6 @@ textarea::placeholder {
   padding: 10px;
 }
 
-/* Calendar */
 #calendar-wrap {
   width: 100%;
   min-width: 0;
@@ -808,7 +972,6 @@ textarea::placeholder {
 .cal-day.selected {
   background: var(--accent) !important;
   color: #fff !important;
-  border-radius: 6px;
 }
 
 .cal-day.other {
@@ -819,7 +982,6 @@ textarea::placeholder {
   pointer-events: none;
 }
 
-/* Time */
 #time-wrap {
   display: flex;
   flex-direction: row;
@@ -842,6 +1004,7 @@ textarea::placeholder {
   padding: 5px 8px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .time-sep {
@@ -863,6 +1026,8 @@ textarea::placeholder {
 
 #time-sliders {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .slider-row {
@@ -899,7 +1064,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 #ampm-toggle {
-  width: 100%;
+  width: 42px;
   padding: 4px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--accent);
@@ -908,6 +1073,7 @@ input[type="range"]::-webkit-slider-thumb {
   font-family: var(--mono);
   font-size: 11px;
   cursor: pointer;
+  flex-shrink: 0;
   transition: all var(--transition);
 }
 
@@ -947,7 +1113,7 @@ input[type="range"]::-webkit-slider-thumb {
   display: none;
 }
 
-/* ── Subtask input in modal ───────────────────────────────────────────────── */
+/* Subtask input */
 #subtask-input-row {
   display: flex;
   gap: 6px;
@@ -1012,7 +1178,7 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--red);
 }
 
-/* ── Modal actions ────────────────────────────────────────────────────────── */
+/* Modal actions */
 #modal-actions {
   display: flex;
   gap: 8px;
@@ -1060,7 +1226,7 @@ input[type="range"]::-webkit-slider-thumb {
   transform: translateY(0);
 }
 
-/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 4px;
 }
@@ -1078,12 +1244,11 @@ input[type="range"]::-webkit-slider-thumb {
   background: var(--text3);
 }
 
-/* ── Utility ──────────────────────────────────────────────────────────────── */
 .hidden {
   display: none !important;
 }
 
-/* ── Search bar ────────────────────────────────────────────────────────────── */
+/* ── Search bar ───────────────────────────────────────────────────────────── */
 #search-bar {
   display: flex;
   align-items: center;
@@ -1096,11 +1261,9 @@ input[type="range"]::-webkit-slider-thumb {
 
 #search-icon {
   color: var(--text3);
-  font-size: 16px;
-  line-height: 1;
   flex-shrink: 0;
-  transform: scaleX(-1);
-  display: inline-block;
+  display: flex;
+  align-items: center;
 }
 
 #inp-search {
@@ -1146,40 +1309,7 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--red);
 }
 
-/* ── Drag to reorder ───────────────────────────────────────────────────────── */
-.drag-handle {
-  color: var(--text3);
-  font-size: 13px;
-  cursor: grab;
-  padding: 0 2px;
-  flex-shrink: 0;
-  line-height: 1;
-  opacity: 0;
-  transition: opacity var(--transition);
-  user-select: none;
-}
-
-.task-card:hover .drag-handle {
-  opacity: 1;
-}
-
-.drag-handle:active {
-  cursor: grabbing;
-}
-
-.task-card.dragging {
-  opacity: 0.4;
-  transform: scale(0.97);
-  border-style: dashed;
-}
-
-.task-card.drag-over {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow), 0 2px 16px rgba(0, 0, 0, .3);
-  transform: translateY(-2px);
-}
-
-/* ── Delete animation ──────────────────────────────────────────────────────── */
+/* ── Delete animation ─────────────────────────────────────────────────────── */
 .task-card.removing {
   animation: removeCard 0.22s ease forwards;
 }
@@ -1194,7 +1324,7 @@ input[type="range"]::-webkit-slider-thumb {
   }
 }
 
-/* ── Toast notifications ───────────────────────────────────────────────────── */
+/* ── Toast ────────────────────────────────────────────────────────────────── */
 #toast-container {
   position: fixed;
   bottom: 70px;
@@ -1211,9 +1341,6 @@ input[type="range"]::-webkit-slider-thumb {
 
 .toast {
   pointer-events: all;
-}
-
-.toast {
   padding: 7px 14px;
   border-radius: 20px;
   font-size: 12px;
@@ -1256,11 +1383,29 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--accent2);
 }
 
-/* ── Collapse / Expand ────────────────────────────────────────────────────── */
+.toast-undo {
+  margin-left: 10px;
+  background: transparent;
+  border: 1px solid currentColor;
+  color: inherit;
+  border-radius: 20px;
+  padding: 1px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all var(--transition);
+}
+
+.toast-undo:hover {
+  background: rgba(255, 255, 255, .15);
+}
+
+/* ── Collapse ─────────────────────────────────────────────────────────────── */
 #app.collapsed #stats-bar,
 #app.collapsed #search-bar,
 #app.collapsed #filter-bar,
 #app.collapsed #priority-bar,
+#app.collapsed #categories-bar,
 #app.collapsed #task-list-wrapper,
 #app.collapsed #fab,
 #app.collapsed #resize-grip {
@@ -1271,6 +1416,7 @@ input[type="range"]::-webkit-slider-thumb {
 #search-bar,
 #filter-bar,
 #priority-bar,
+#categories-bar,
 #task-list-wrapper,
 #fab {
   animation: fadeInSection .15s ease forwards;
@@ -1286,19 +1432,14 @@ input[type="range"]::-webkit-slider-thumb {
   }
 }
 
-/* Collapsed app — fill entire window with just the titlebar bg */
 #app.collapsed {
   background: var(--bg2);
-  height: 100vh;
-  justify-content: center;
 }
 
 #app.collapsed #titlebar {
   border-bottom: none;
-  width: 100%;
 }
 
-/* Collapse button rotation */
 #btn-collapse {
   font-size: 13px;
   transition: transform 0.2s ease;
@@ -1334,28 +1475,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 10px;
   height: 10px;
   background: linear-gradient(135deg,
-      transparent 0%, transparent 30%,
-      var(--accent) 30%, var(--accent) 40%,
-      transparent 40%, transparent 55%,
-      var(--accent) 55%, var(--accent) 65%,
-      transparent 65%, transparent 80%,
-      var(--accent) 80%, var(--accent) 90%,
-      transparent 90%);
-}
-
-.toast-undo {
-  margin-left: 10px;
-  background: transparent;
-  border: 1px solid currentColor;
-  color: inherit;
-  border-radius: 20px;
-  padding: 1px 8px;
-  font-size: 11px;
-  cursor: pointer;
-  font-family: var(--font);
-  transition: all var(--transition);
-}
-
-.toast-undo:hover {
-  background: rgba(255, 255, 255, .15);
+      transparent 0%, transparent 30%, var(--accent) 30%, var(--accent) 40%,
+      transparent 40%, transparent 55%, var(--accent) 55%, var(--accent) 65%,
+      transparent 65%, transparent 80%, var(--accent) 80%, var(--accent) 90%, transparent 90%);
 }

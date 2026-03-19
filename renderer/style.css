@@ -244,7 +244,7 @@ body {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 /* ── Task card ────────────────────────────────────────────────────────────── */
@@ -252,7 +252,7 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 10px 12px;
+  padding: 8px 10px;
   cursor: default;
   transition: border-color var(--transition), box-shadow var(--transition);
   animation: slideIn .18s ease;
@@ -529,6 +529,8 @@ body {
   justify-content: center;
   transition: transform var(--transition), box-shadow var(--transition);
   z-index: 10;
+  line-height: 1;
+  padding: 0;
 }
 
 #fab:hover {

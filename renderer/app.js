@@ -138,8 +138,8 @@ function buildTaskCard(t) {
     const d = new Date(t.dueTs);
     const ds = dateStr(d.getFullYear(), d.getMonth(), d.getDate());
     dueLabel = formatDue(t.dueTs);
-    if (!t.done && t.dueTs < now) dueCls = 'overdue';
-    else if (ds === todayStr) dueCls = 'today';
+    if (!t.done && t.dueTs < now) { dueCls = 'overdue'; dueLabel = '⚠ ' + dueLabel; }
+    else if (ds === todayStr) { dueCls = 'today'; dueLabel = '⏰ ' + dueLabel; }
   }
 
   // subtask progress

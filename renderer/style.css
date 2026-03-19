@@ -1267,6 +1267,25 @@ input[type="range"]::-webkit-slider-thumb {
   display: none !important;
 }
 
+#stats-bar,
+#search-bar,
+#filter-bar,
+#priority-bar,
+#task-list-wrapper,
+#fab {
+  animation: fadeInSection .15s ease forwards;
+}
+
+@keyframes fadeInSection {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 /* Collapsed app — fill entire window with just the titlebar bg */
 #app.collapsed {
   background: var(--bg2);

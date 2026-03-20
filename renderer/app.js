@@ -237,6 +237,7 @@ function saveTask() {
   if (!title) { inpTitle.focus(); inpTitle.style.borderColor = 'var(--red)'; return; }
   inpTitle.style.borderColor = '';
   const taskData = {
+    category: document.getElementById('inp-category').value,
     title, notes: inpNotes.value.trim(), label: inpLabel.value.trim(),
     priority: getSelectedPriority(), dueTs: buildDueTs(),
     subtasks: draftSubtasks.slice(), done: false
@@ -311,6 +312,7 @@ function addDraftSubtask() {
 }
 
 function openAddModal() {
+  populateCategorySelect();
   editingId = null; modalTitle.textContent = 'New Task';
   inpTitle.value = ''; inpNotes.value = ''; inpLabel.value = '';
   draftSubtasks = []; selectedDate = null;
@@ -321,6 +323,7 @@ function openAddModal() {
   modalOverlay.classList.remove('hidden'); setTimeout(() => inpTitle.focus(), 80);
 }
 function openEditModal(id) {
+  populateCategorySelect(t.category || '');
   const t = tasks.find(x => x.id === id); if (!t) return;
   editingId = id; modalTitle.textContent = 'Edit Task';
   inpTitle.value = t.title; inpNotes.value = t.notes || ''; inpLabel.value = t.label || '';
@@ -506,3 +509,15 @@ function attachSearchListeners() {
 
 attachSearchListeners();
 init();
+
+function populateCategorySelect(selected = '') {
+  const sel = document.getElementById('inp-category');
+  sel.innerHTML = '<option value="">None</option>';
+  categories.forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    if (cat === selected) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}

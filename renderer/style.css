@@ -1551,3 +1551,27 @@ input[type="range"]::-webkit-slider-thumb {
       transparent 40%, transparent 55%, var(--accent) 55%, var(--accent) 65%,
       transparent 65%, transparent 80%, var(--accent) 80%, var(--accent) 90%, transparent 90%);
 }
+
+#inp-category {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+
+#inp-category:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+#inp-category option {
+  background: var(--bg3);
+  color: var(--text);
+}

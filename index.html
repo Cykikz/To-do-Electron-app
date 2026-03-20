@@ -47,14 +47,12 @@
       </div>
     </div>
 
-    <!-- Stats bar -->
     <div id="stats-bar">
       <span id="stat-total"></span>
       <span id="stat-done"></span>
       <span id="stat-overdue"></span>
     </div>
 
-    <!-- Search bar -->
     <div id="search-bar">
       <span id="search-icon">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
@@ -62,7 +60,7 @@
           <path d="M8.5 8.5L11 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
         </svg>
       </span>
-      <input type="text" id="inp-search" placeholder="Search tasks…" maxlength="80" autocomplete="off" />
+      <input type="text" id="inp-search" placeholder="Search tasks..." maxlength="80" autocomplete="off" />
       <button id="search-clear" class="hidden" title="Clear search">✕</button>
     </div>
 
@@ -76,7 +74,13 @@
       </button>
     </div>
 
-    <!-- Filter tabs -->
+    <!-- Category input (hidden by default) -->
+    <div id="cat-input-bar" class="hidden">
+      <input type="text" id="inp-cat" placeholder="Category name..." maxlength="20" />
+      <button id="btn-cat-save">Add</button>
+      <button id="btn-cat-cancel">✕</button>
+    </div>
+
     <div id="filter-bar">
       <button class="filter-btn active" data-filter="all">All</button>
       <button class="filter-btn" data-filter="today">Today</button>
@@ -85,7 +89,6 @@
       <button class="filter-btn" data-filter="done">Done</button>
     </div>
 
-    <!-- Priority filter -->
     <div id="priority-bar">
       <button class="prio-btn active" data-prio="all">All</button>
       <button class="prio-btn" data-prio="high">🔴 High</button>
@@ -93,7 +96,6 @@
       <button class="prio-btn" data-prio="low">🟢 Low</button>
     </div>
 
-    <!-- Task list -->
     <div id="task-list-wrapper">
       <ul id="task-list"></ul>
       <div id="empty-state">
@@ -102,12 +104,12 @@
       </div>
     </div>
 
+    <!-- FAB — plain + not fullwidth -->
     <button id="fab" title="Add Task">+</button>
     <div id="resize-grip"></div>
 
   </div>
 
-  <!-- Modal -->
   <div id="modal-overlay" class="hidden">
     <div id="modal">
       <div id="modal-header">
@@ -120,7 +122,7 @@
       </div>
       <div class="field">
         <label>Notes</label>
-        <textarea id="inp-notes" placeholder="Optional notes…" rows="2"></textarea>
+        <textarea id="inp-notes" placeholder="Optional notes..." rows="2"></textarea>
       </div>
       <div class="field-row">
         <div class="field half">
@@ -168,8 +170,8 @@
       <div class="field">
         <label>Subtasks</label>
         <div id="subtask-input-row">
-          <input type="text" id="inp-subtask" placeholder="Add subtask…" maxlength="80" />
-          <button id="btn-add-subtask">＋</button>
+          <input type="text" id="inp-subtask" placeholder="Add subtask..." maxlength="80" />
+          <button id="btn-add-subtask">+</button>
         </div>
         <ul id="subtask-list"></ul>
       </div>

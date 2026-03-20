@@ -1,7 +1,6 @@
 /* ── TodoFloat renderer ─────────────────────────────────────────────────── */
 'use strict';
 
-// ── State ────────────────────────────────────────────────────────────────────
 let tasks = [];
 let filter = 'all';
 let prioFilter = 'all';
@@ -11,13 +10,11 @@ let dragSrcId = null;
 let activeCategory = 'all';
 let categories = [];
 
-// modal drafts
 let draftSubtasks = [];
 let selectedDate = null;
 let calViewYear = new Date().getFullYear();
 let calViewMonth = new Date().getMonth();
 
-// ── DOM refs ─────────────────────────────────────────────────────────────────
 const taskList = document.getElementById('task-list');
 const emptyState = document.getElementById('empty-state');
 const fab = document.getElementById('fab');
@@ -43,7 +40,6 @@ const statTotal = document.getElementById('stat-total');
 const statDone = document.getElementById('stat-done');
 const statOverdue = document.getElementById('stat-overdue');
 
-// ── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
   tasks = await window.todoAPI.loadTasks();
   const settings = await window.todoAPI.getSettings();
@@ -56,19 +52,11 @@ async function init() {
   renderAll();
   attachGlobalListeners();
   loadCategories();
-  attachCategoryAddListener();
 }
 
-// ── Save ─────────────────────────────────────────────────────────────────────
-async function save() {
-  await window.todoAPI.saveTasks(tasks);
-}
+async function save() { await window.todoAPI.saveTasks(tasks); }
 
-// ── Render ───────────────────────────────────────────────────────────────────
-function renderAll() {
-  renderStats();
-  renderTaskList();
-}
+function renderAll() { renderStats(); renderTaskList(); }
 
 function renderStats() {
   const now = Date.now();
@@ -111,10 +99,7 @@ function renderTaskList() {
   const filtered = getFilteredTasks();
   taskList.innerHTML = '';
   emptyState.style.display = filtered.length === 0 ? 'block' : 'none';
-  filtered.forEach(t => {
-    const li = buildTaskCard(t);
-    taskList.appendChild(li);
-  });
+  filtered.forEach(t => taskList.appendChild(buildTaskCard(t)));
 }
 
 function buildTaskCard(t) {
@@ -169,7 +154,7 @@ function buildTaskCard(t) {
       <div class="subtask-progress-fill" style="width:${subPct}%"></div>
     </div>` : ''}
     <div class="task-recurring-row">
-      <div class="recurring-btn${t.daily ? ' is-daily' : ''}" data-action="toggleDaily" title="${t.daily ? 'Remove from Daily' : 'Add to Daily'}">
+      <div class="recurring-btn${t.daily ? ' is-daily' : ''}" data-action="toggleDaily">
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
           <path d="M5 1v4l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
           <path d="M9 5A4 4 0 1 1 5 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
@@ -200,7 +185,6 @@ function buildTaskCard(t) {
   });
   li.addEventListener('dragover', e => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
     document.querySelectorAll('.task-card').forEach(c => c.classList.remove('drag-over'));
     if (dragSrcId !== t.id) li.classList.add('drag-over');
   });
@@ -219,24 +203,14 @@ function buildTaskCard(t) {
   return li;
 }
 
-// ── Task CRUD ─────────────────────────────────────────────────────────────────
 function toggleTask(id) {
   const t = tasks.find(x => x.id === id);
-  if (t) {
-    t.done = !t.done;
-    save(); renderAll();
-    if (t.done) toast('Done! 🎉', 'success');
-  }
+  if (t) { t.done = !t.done; save(); renderAll(); if (t.done) toast('Done! 🎉', 'success'); }
 }
-
 function toggleSubtask(taskId, idx) {
   const t = tasks.find(x => x.id === taskId);
-  if (t && t.subtasks[idx]) {
-    t.subtasks[idx].done = !t.subtasks[idx].done;
-    save(); renderAll();
-  }
+  if (t && t.subtasks[idx]) { t.subtasks[idx].done = !t.subtasks[idx].done; save(); renderAll(); }
 }
-
 function toggleDaily(id) {
   const t = tasks.find(x => x.id === id);
   if (!t) return;
@@ -244,43 +218,28 @@ function toggleDaily(id) {
   save(); renderAll();
   toast(t.daily ? '↻ Added to Daily' : 'Removed from Daily', 'info');
 }
-
 function deleteTask(id) {
   const deletedTask = tasks.find(t => t.id === id);
   const card = document.querySelector(`.task-card[data-id="${id}"]`);
   if (card) {
     card.classList.add('removing');
-    setTimeout(() => {
-      tasks = tasks.filter(t => t.id !== id);
-      save(); renderAll();
-    }, 220);
+    setTimeout(() => { tasks = tasks.filter(t => t.id !== id); save(); renderAll(); }, 220);
   } else {
-    tasks = tasks.filter(t => t.id !== id);
-    save(); renderAll();
+    tasks = tasks.filter(t => t.id !== id); save(); renderAll();
   }
-  toast('Task deleted', 'error', () => {
-    tasks.unshift(deletedTask);
-    save(); renderAll();
-  });
+  toast('Task deleted', 'error', () => { tasks.unshift(deletedTask); save(); renderAll(); });
 }
 
-function getSelectedPriority() {
-  return document.querySelector('.prio-opt.active')?.dataset.val || 'med';
-}
+function getSelectedPriority() { return document.querySelector('.prio-opt.active')?.dataset.val || 'med'; }
 
 function saveTask() {
   const title = inpTitle.value.trim();
   if (!title) { inpTitle.focus(); inpTitle.style.borderColor = 'var(--red)'; return; }
   inpTitle.style.borderColor = '';
-  const dueTs = buildDueTs();
   const taskData = {
-    title,
-    notes: inpNotes.value.trim(),
-    label: inpLabel.value.trim(),
-    priority: getSelectedPriority(),
-    dueTs,
-    subtasks: draftSubtasks.slice(),
-    done: false
+    title, notes: inpNotes.value.trim(), label: inpLabel.value.trim(),
+    priority: getSelectedPriority(), dueTs: buildDueTs(),
+    subtasks: draftSubtasks.slice(), done: false
   };
   if (editingId) {
     const idx = tasks.findIndex(t => t.id === editingId);
@@ -293,39 +252,26 @@ function saveTask() {
   toast(isEdit ? 'Task updated ✓' : 'Task added ✓', 'success');
 }
 
-// ── Due timestamp ─────────────────────────────────────────────────────────────
 function buildDueTs() {
   if (!selectedDate) return null;
   const hrs24 = to24(parseInt(slHrs.value), ampmToggle.textContent);
-  const d = new Date(selectedDate.year, selectedDate.month, selectedDate.day, hrs24, parseInt(slMins.value), 0);
-  return d.getTime();
+  return new Date(selectedDate.year, selectedDate.month, selectedDate.day, hrs24, parseInt(slMins.value), 0).getTime();
 }
-
 function to24(h, ampm) {
   if (ampm === 'AM') return h === 12 ? 0 : h;
   return h === 12 ? 12 : h + 12;
 }
-
 function updateTimeDisplay() {
-  const h = parseInt(slHrs.value);
-  const m = parseInt(slMins.value);
-  timeHrs.textContent = String(h).padStart(2, '0');
-  timeMins.textContent = String(m).padStart(2, '0');
+  timeHrs.textContent = String(parseInt(slHrs.value)).padStart(2, '0');
+  timeMins.textContent = String(parseInt(slMins.value)).padStart(2, '0');
   timeAmpm.textContent = ampmToggle.textContent;
   updateDuePreview();
 }
-
 function updateDuePreview() {
-  if (selectedDate) {
-    duePreview.textContent = formatDue(buildDueTs());
-    dueClear.classList.remove('hidden');
-  } else {
-    duePreview.textContent = '';
-    dueClear.classList.add('hidden');
-  }
+  if (selectedDate) { duePreview.textContent = formatDue(buildDueTs()); dueClear.classList.remove('hidden'); }
+  else { duePreview.textContent = ''; dueClear.classList.add('hidden'); }
 }
 
-// ── Calendar ──────────────────────────────────────────────────────────────────
 function buildCalendar(year, month) {
   const wrap = document.getElementById('calendar-wrap');
   const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
@@ -334,16 +280,7 @@ function buildCalendar(year, month) {
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const daysInPrev = new Date(year, month, 0).getDate();
-
-  let html = `
-    <div class="cal-header">
-      <button class="cal-nav" id="cal-prev">‹</button>
-      <span>${MONTHS[month]} ${year}</span>
-      <button class="cal-nav" id="cal-next">›</button>
-    </div>
-    <div class="cal-grid">
-      ${DAYS.map(d => `<div class="cal-day-label">${d}</div>`).join('')}
-  `;
+  let html = `<div class="cal-header"><button class="cal-nav" id="cal-prev">‹</button><span>${MONTHS[month]} ${year}</span><button class="cal-nav" id="cal-next">›</button></div><div class="cal-grid">${DAYS.map(d => `<div class="cal-day-label">${d}</div>`).join('')}`;
   for (let i = firstDay - 1; i >= 0; i--) html += `<div class="cal-day other">${daysInPrev - i}</div>`;
   for (let d = 1; d <= daysInMonth; d++) {
     const isToday = (d === today.getDate() && month === today.getMonth() && year === today.getFullYear());
@@ -355,63 +292,37 @@ function buildCalendar(year, month) {
   for (let i = firstDay + daysInMonth; i < totalCells; i++) html += `<div class="cal-day other">${next++}</div>`;
   html += '</div>';
   wrap.innerHTML = html;
-
-  document.getElementById('cal-prev').addEventListener('click', () => {
-    calViewMonth--; if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
-    buildCalendar(calViewYear, calViewMonth);
-  });
-  document.getElementById('cal-next').addEventListener('click', () => {
-    calViewMonth++; if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
-    buildCalendar(calViewYear, calViewMonth);
-  });
+  document.getElementById('cal-prev').addEventListener('click', () => { calViewMonth--; if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; } buildCalendar(calViewYear, calViewMonth); });
+  document.getElementById('cal-next').addEventListener('click', () => { calViewMonth++; if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; } buildCalendar(calViewYear, calViewMonth); });
   wrap.querySelectorAll('.cal-day[data-d]').forEach(el => {
-    el.addEventListener('click', () => {
-      selectedDate = { year: calViewYear, month: calViewMonth, day: parseInt(el.dataset.d) };
-      buildCalendar(calViewYear, calViewMonth);
-      updateDuePreview();
-    });
+    el.addEventListener('click', () => { selectedDate = { year: calViewYear, month: calViewMonth, day: parseInt(el.dataset.d) }; buildCalendar(calViewYear, calViewMonth); updateDuePreview(); });
   });
 }
 
-// ── Subtask draft ─────────────────────────────────────────────────────────────
 function renderDraftSubtasks() {
-  subtaskList.innerHTML = draftSubtasks.map((s, i) => `
-    <li><span>${escHtml(s.text)}</span><button data-idx="${i}">✕</button></li>
-  `).join('');
+  subtaskList.innerHTML = draftSubtasks.map((s, i) => `<li><span>${escHtml(s.text)}</span><button data-idx="${i}">✕</button></li>`).join('');
   subtaskList.querySelectorAll('button').forEach(b => {
     b.addEventListener('click', () => { draftSubtasks.splice(parseInt(b.dataset.idx), 1); renderDraftSubtasks(); });
   });
 }
-
 function addDraftSubtask() {
-  const v = inpSubtask.value.trim();
-  if (!v) return;
-  draftSubtasks.push({ text: v, done: false });
-  inpSubtask.value = '';
-  renderDraftSubtasks();
+  const v = inpSubtask.value.trim(); if (!v) return;
+  draftSubtasks.push({ text: v, done: false }); inpSubtask.value = ''; renderDraftSubtasks();
 }
 
-// ── Modal ─────────────────────────────────────────────────────────────────────
 function openAddModal() {
-  editingId = null;
-  modalTitle.textContent = 'New Task';
+  editingId = null; modalTitle.textContent = 'New Task';
   inpTitle.value = ''; inpNotes.value = ''; inpLabel.value = '';
   draftSubtasks = []; selectedDate = null;
   document.querySelectorAll('.prio-opt').forEach(b => b.classList.toggle('active', b.dataset.val === 'med'));
-  const now = new Date();
-  calViewYear = now.getFullYear(); calViewMonth = now.getMonth();
-  slHrs.value = 12; slMins.value = 0;
-  ampmToggle.textContent = 'AM'; timeAmpm.textContent = 'AM';
+  const now = new Date(); calViewYear = now.getFullYear(); calViewMonth = now.getMonth();
+  slHrs.value = 12; slMins.value = 0; ampmToggle.textContent = 'AM'; timeAmpm.textContent = 'AM';
   renderDraftSubtasks(); buildCalendar(calViewYear, calViewMonth); updateTimeDisplay();
-  modalOverlay.classList.remove('hidden');
-  setTimeout(() => inpTitle.focus(), 80);
+  modalOverlay.classList.remove('hidden'); setTimeout(() => inpTitle.focus(), 80);
 }
-
 function openEditModal(id) {
-  const t = tasks.find(x => x.id === id);
-  if (!t) return;
-  editingId = id;
-  modalTitle.textContent = 'Edit Task';
+  const t = tasks.find(x => x.id === id); if (!t) return;
+  editingId = id; modalTitle.textContent = 'Edit Task';
   inpTitle.value = t.title; inpNotes.value = t.notes || ''; inpLabel.value = t.label || '';
   draftSubtasks = (t.subtasks || []).map(s => ({ ...s }));
   document.querySelectorAll('.prio-opt').forEach(b => b.classList.toggle('active', b.dataset.val === t.priority));
@@ -419,28 +330,17 @@ function openEditModal(id) {
     const d = new Date(t.dueTs);
     selectedDate = { year: d.getFullYear(), month: d.getMonth(), day: d.getDate() };
     calViewYear = d.getFullYear(); calViewMonth = d.getMonth();
-    let h = d.getHours();
-    const ampm = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
-    slHrs.value = h; slMins.value = d.getMinutes();
-    ampmToggle.textContent = ampm; timeAmpm.textContent = ampm;
+    let h = d.getHours(); const ampm = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+    slHrs.value = h; slMins.value = d.getMinutes(); ampmToggle.textContent = ampm; timeAmpm.textContent = ampm;
   } else {
-    selectedDate = null;
-    const now = new Date();
-    calViewYear = now.getFullYear(); calViewMonth = now.getMonth();
-    slHrs.value = 12; slMins.value = 0;
-    ampmToggle.textContent = 'AM'; timeAmpm.textContent = 'AM';
+    selectedDate = null; const now = new Date(); calViewYear = now.getFullYear(); calViewMonth = now.getMonth();
+    slHrs.value = 12; slMins.value = 0; ampmToggle.textContent = 'AM'; timeAmpm.textContent = 'AM';
   }
   renderDraftSubtasks(); buildCalendar(calViewYear, calViewMonth); updateTimeDisplay();
-  modalOverlay.classList.remove('hidden');
-  setTimeout(() => inpTitle.focus(), 80);
+  modalOverlay.classList.remove('hidden'); setTimeout(() => inpTitle.focus(), 80);
 }
+function closeModal() { modalOverlay.classList.add('hidden'); editingId = null; }
 
-function closeModal() {
-  modalOverlay.classList.add('hidden');
-  editingId = null;
-}
-
-// ── Global listeners ──────────────────────────────────────────────────────────
 function attachGlobalListeners() {
   fab.addEventListener('click', openAddModal);
   btnSave.addEventListener('click', saveTask);
@@ -477,7 +377,6 @@ function attachGlobalListeners() {
       renderAll();
     });
   });
-
   document.querySelectorAll('.prio-btn').forEach(b => {
     b.addEventListener('click', () => {
       prioFilter = b.dataset.prio;
@@ -485,7 +384,6 @@ function attachGlobalListeners() {
       renderAll();
     });
   });
-
   document.querySelectorAll('.prio-opt').forEach(b => {
     b.addEventListener('click', () => {
       document.querySelectorAll('.prio-opt').forEach(x => x.classList.remove('active'));
@@ -495,36 +393,47 @@ function attachGlobalListeners() {
 
   slHrs.addEventListener('input', updateTimeDisplay);
   slMins.addEventListener('input', updateTimeDisplay);
-  ampmToggle.addEventListener('click', () => {
-    ampmToggle.textContent = ampmToggle.textContent === 'AM' ? 'PM' : 'AM';
-    updateTimeDisplay();
-  });
-  dueClear.addEventListener('click', () => {
-    selectedDate = null; buildCalendar(calViewYear, calViewMonth); updateDuePreview();
-  });
+  ampmToggle.addEventListener('click', () => { ampmToggle.textContent = ampmToggle.textContent === 'AM' ? 'PM' : 'AM'; updateTimeDisplay(); });
+  dueClear.addEventListener('click', () => { selectedDate = null; buildCalendar(calViewYear, calViewMonth); updateDuePreview(); });
   document.getElementById('btn-add-subtask').addEventListener('click', addDraftSubtask);
   inpSubtask.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addDraftSubtask(); } });
   inpTitle.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inpNotes.focus(); } });
 }
 
-// ── Categories ────────────────────────────────────────────────────────────────
+// ── Categories — no prompt(), inline input instead ────────────────────────────
 function loadCategories() {
   const saved = localStorage.getItem('todofloat-categories');
   categories = saved ? JSON.parse(saved) : [];
   renderCategories();
-}
 
-function attachCategoryAddListener() {
-  document.getElementById('btn-add-cat').addEventListener('click', () => {
-    const name = prompt('Category name:');
-    if (!name || !name.trim()) return;
-    const cat = name.trim();
-    if (!categories.includes(cat)) {
-      categories.push(cat);
+  const catInputBar = document.getElementById('cat-input-bar');
+  const inpCat = document.getElementById('inp-cat');
+  const btnCatSave = document.getElementById('btn-cat-save');
+  const btnCatCancel = document.getElementById('btn-cat-cancel');
+  const btnAddCat = document.getElementById('btn-add-cat');
+
+  // Show inline input
+  btnAddCat.addEventListener('click', () => {
+    catInputBar.classList.remove('hidden');
+    inpCat.value = '';
+    inpCat.focus();
+  });
+
+  // Save category
+  const saveCategory = () => {
+    const name = inpCat.value.trim();
+    if (name && !categories.includes(name)) {
+      categories.push(name);
       saveCategories();
       renderCategories();
     }
-  });
+    catInputBar.classList.add('hidden');
+    inpCat.value = '';
+  };
+
+  btnCatSave.addEventListener('click', saveCategory);
+  inpCat.addEventListener('keydown', e => { if (e.key === 'Enter') saveCategory(); if (e.key === 'Escape') { catInputBar.classList.add('hidden'); } });
+  btnCatCancel.addEventListener('click', () => { catInputBar.classList.add('hidden'); inpCat.value = ''; });
 }
 
 function saveCategories() {
@@ -534,27 +443,22 @@ function saveCategories() {
 function renderCategories() {
   const bar = document.getElementById('categories-bar');
   const addBtn = document.getElementById('btn-add-cat');
-
   bar.querySelectorAll('.cat-btn:not([data-cat="all"])').forEach(b => b.remove());
-
   categories.forEach(cat => {
     const btn = document.createElement('button');
     btn.className = 'cat-btn' + (activeCategory === cat ? ' active' : '');
     btn.dataset.cat = cat;
-    btn.innerHTML = `${escHtml(cat)} <span class="cat-del" data-cat="${escHtml(cat)}">✕</span>`;
+    btn.innerHTML = `${escHtml(cat)} <span class="cat-del">✕</span>`;
     btn.addEventListener('click', e => {
       if (e.target.classList.contains('cat-del')) {
         categories = categories.filter(c => c !== cat);
         if (activeCategory === cat) activeCategory = 'all';
-        saveCategories(); renderCategories(); renderAll();
-        return;
+        saveCategories(); renderCategories(); renderAll(); return;
       }
-      activeCategory = cat;
-      renderCategories(); renderAll();
+      activeCategory = cat; renderCategories(); renderAll();
     });
     bar.insertBefore(btn, addBtn);
   });
-
   const allBtn = bar.querySelector('[data-cat="all"]');
   allBtn.classList.toggle('active', activeCategory === 'all');
   allBtn.onclick = () => { activeCategory = 'all'; renderCategories(); renderAll(); };
@@ -565,8 +469,7 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 function escHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function dateStr(y, m, d) { return `${y}-${m}-${d}`; }
 function formatDue(ts) {
-  const d = new Date(ts);
-  const today = new Date();
+  const d = new Date(ts), today = new Date();
   const todayStr = dateStr(today.getFullYear(), today.getMonth(), today.getDate());
   const dStr = dateStr(d.getFullYear(), d.getMonth(), d.getDate());
   const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -576,20 +479,16 @@ function formatDue(ts) {
   return d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + timeStr;
 }
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
 function toast(msg, type = 'info', undoFn = null) {
   const container = document.getElementById('toast-container');
   const el = document.createElement('div');
   el.className = `toast toast-${type}`;
-  el.innerHTML = undoFn
-    ? `<span>${msg}</span><button class="toast-undo">Undo</button>`
-    : `<span>${msg}</span>`;
+  el.innerHTML = undoFn ? `<span>${msg}</span><button class="toast-undo">Undo</button>` : `<span>${msg}</span>`;
   container.appendChild(el);
   requestAnimationFrame(() => el.classList.add('show'));
   let dismissed = false;
   const dismiss = () => {
-    if (dismissed) return;
-    dismissed = true;
+    if (dismissed) return; dismissed = true;
     el.classList.remove('show'); el.classList.add('hide');
     setTimeout(() => el.remove(), 300);
   };
@@ -597,24 +496,13 @@ function toast(msg, type = 'info', undoFn = null) {
   setTimeout(dismiss, 4000);
 }
 
-// ── Search ────────────────────────────────────────────────────────────────────
 function attachSearchListeners() {
   const inp = document.getElementById('inp-search');
   const clear = document.getElementById('search-clear');
-  inp.addEventListener('input', () => {
-    searchQuery = inp.value.trim();
-    clear.classList.toggle('hidden', !searchQuery);
-    renderAll();
-  });
-  clear.addEventListener('click', () => {
-    inp.value = ''; searchQuery = '';
-    clear.classList.add('hidden'); inp.focus(); renderAll();
-  });
-  document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); inp.focus(); inp.select(); }
-  });
+  inp.addEventListener('input', () => { searchQuery = inp.value.trim(); clear.classList.toggle('hidden', !searchQuery); renderAll(); });
+  clear.addEventListener('click', () => { inp.value = ''; searchQuery = ''; clear.classList.add('hidden'); inp.focus(); renderAll(); });
+  document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); inp.focus(); inp.select(); } });
 }
 
-// ── Boot ──────────────────────────────────────────────────────────────────────
 attachSearchListeners();
 init();

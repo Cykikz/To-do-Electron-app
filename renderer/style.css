@@ -696,6 +696,8 @@ body {
   z-index: 10;
   line-height: 1;
   padding: 0;
+  font-size: 28px;
+  font-weight: 300;
 }
 
 #fab:hover {
@@ -1398,6 +1400,76 @@ input[type="range"]::-webkit-slider-thumb {
 
 .toast-undo:hover {
   background: rgba(255, 255, 255, .15);
+}
+
+
+/* ── Category inline input ────────────────────────────────────────────────── */
+#cat-input-bar {
+  display: flex;
+  gap: 6px;
+  padding: 4px 10px 6px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  align-items: center;
+}
+
+#cat-input-bar input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 12px;
+  outline: none;
+}
+
+#cat-input-bar input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+#btn-cat-save {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+#btn-cat-save:hover {
+  background: var(--accent2);
+}
+
+#btn-cat-cancel {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+
+#btn-cat-cancel:hover {
+  background: var(--bg3);
+  color: var(--red);
+}
+
+#app.collapsed #cat-input-bar {
+  display: none !important;
 }
 
 /* ── Collapse ─────────────────────────────────────────────────────────────── */

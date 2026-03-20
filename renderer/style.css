@@ -129,6 +129,12 @@ body {
   color: var(--accent);
 }
 
+#btn-pin.pinned2 {
+  color: var(--accent);
+  background: rgba(124, 106, 247, .15) !important;
+  border-radius: var(--radius-sm);
+}
+
 /* ── Stats bar ────────────────────────────────────────────────────────────── */
 #stats-bar {
   display: flex;

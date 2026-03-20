@@ -120,13 +120,40 @@ ipcMain.on('window:minimize', () => mainWindow && mainWindow.minimize());
 ipcMain.on('window:hide', () => mainWindow && mainWindow.hide());
 ipcMain.on('window:close', () => app.quit());
 
-// Pin
+// Pin — original (kept as-is)
 ipcMain.on('window:togglePin', (_, val) => {
   store.set('alwaysOnTop', val);
   if (mainWindow) mainWindow.setAlwaysOnTop(val);
 });
 
-// Collapse
+// Pin — 3 states (NEW)
+// state 0 = normal        (alwaysOnTop OFF, movable ON)
+// state 1 = pinned        (alwaysOnTop ON,  movable ON)
+// state 2 = locked        (alwaysOnTop ON,  movable OFF)
+ipcMain.on('window:setPinState', (_, state) => {
+  store.set('pinState', state);
+  if (!mainWindow) return;
+  if (state === 0) {
+    store.set('alwaysOnTop', false);
+    mainWindow.setAlwaysOnTop(false);
+    mainWindow.setMovable(true);
+  } else if (state === 1) {
+    store.set('alwaysOnTop', true);
+    mainWindow.setAlwaysOnTop(true);
+    mainWindow.setMovable(true);
+  } else if (state === 2) {
+    store.set('alwaysOnTop', true);
+    mainWindow.setAlwaysOnTop(true);
+    mainWindow.setMovable(false);
+  }
+});
+
+// Movable — original (kept as-is)
+ipcMain.on('window:setMovable', (_, val) => {
+  if (mainWindow) mainWindow.setMovable(val);
+});
+
+// Collapse — original (kept as-is)
 ipcMain.on('window:setCollapsed', (_, collapsed) => {
   if (!mainWindow) return;
   store.set('collapsed', collapsed);
@@ -149,14 +176,11 @@ ipcMain.on('window:setCollapsed', (_, collapsed) => {
 // Settings
 ipcMain.handle('settings:get', () => ({
   alwaysOnTop: store.get('alwaysOnTop', true),
+  pinState: store.get('pinState', 1),
   openAtLogin: app.getLoginItemSettings().openAtLogin,
   collapsed: store.get('collapsed', false)
 }));
 
 ipcMain.on('settings:setStartup', (_, val) => {
   app.setLoginItemSettings({ openAtLogin: val });
-});
-
-ipcMain.on('window:setMovable', (_, val) => {
-  if (mainWindow) mainWindow.setMovable(val);
 });

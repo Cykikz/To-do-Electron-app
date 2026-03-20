@@ -22,7 +22,7 @@ const modalOverlay = document.getElementById('modal-overlay');
 const modalTitle = document.getElementById('modal-title');
 const inpTitle = document.getElementById('inp-title');
 const inpNotes = document.getElementById('inp-notes');
-const inpLabel = document.getElementById('inp-label');
+// inpLabel removed — using category dropdown instead
 const inpSubtask = document.getElementById('inp-subtask');
 const subtaskList = document.getElementById('subtask-list');
 const duePreview = document.getElementById('due-preview');
@@ -237,9 +237,9 @@ function saveTask() {
   if (!title) { inpTitle.focus(); inpTitle.style.borderColor = 'var(--red)'; return; }
   inpTitle.style.borderColor = '';
   const taskData = {
-    category: document.getElementById('inp-category').value,
-    title, notes: inpNotes.value.trim(), label: inpLabel.value.trim(),
+    title, notes: inpNotes.value.trim(),
     priority: getSelectedPriority(), dueTs: buildDueTs(),
+    category: document.getElementById('inp-category')?.value || '',
     subtasks: draftSubtasks.slice(), done: false
   };
   if (editingId) {
@@ -312,21 +312,20 @@ function addDraftSubtask() {
 }
 
 function openAddModal() {
-  populateCategorySelect();
   editingId = null; modalTitle.textContent = 'New Task';
-  inpTitle.value = ''; inpNotes.value = ''; inpLabel.value = '';
+  inpTitle.value = ''; inpNotes.value = '';
   draftSubtasks = []; selectedDate = null;
   document.querySelectorAll('.prio-opt').forEach(b => b.classList.toggle('active', b.dataset.val === 'med'));
   const now = new Date(); calViewYear = now.getFullYear(); calViewMonth = now.getMonth();
   slHrs.value = 12; slMins.value = 0; ampmToggle.textContent = 'AM'; timeAmpm.textContent = 'AM';
+  populateCategorySelect('');
   renderDraftSubtasks(); buildCalendar(calViewYear, calViewMonth); updateTimeDisplay();
   modalOverlay.classList.remove('hidden'); setTimeout(() => inpTitle.focus(), 80);
 }
 function openEditModal(id) {
-  populateCategorySelect(t.category || '');
   const t = tasks.find(x => x.id === id); if (!t) return;
   editingId = id; modalTitle.textContent = 'Edit Task';
-  inpTitle.value = t.title; inpNotes.value = t.notes || ''; inpLabel.value = t.label || '';
+  inpTitle.value = t.title; inpNotes.value = t.notes || '';
   draftSubtasks = (t.subtasks || []).map(s => ({ ...s }));
   document.querySelectorAll('.prio-opt').forEach(b => b.classList.toggle('active', b.dataset.val === t.priority));
   if (t.dueTs) {
@@ -339,6 +338,7 @@ function openEditModal(id) {
     selectedDate = null; const now = new Date(); calViewYear = now.getFullYear(); calViewMonth = now.getMonth();
     slHrs.value = 12; slMins.value = 0; ampmToggle.textContent = 'AM'; timeAmpm.textContent = 'AM';
   }
+  populateCategorySelect(t.category || '');
   renderDraftSubtasks(); buildCalendar(calViewYear, calViewMonth); updateTimeDisplay();
   modalOverlay.classList.remove('hidden'); setTimeout(() => inpTitle.focus(), 80);
 }
@@ -403,6 +403,19 @@ function attachGlobalListeners() {
   inpTitle.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inpNotes.focus(); } });
 }
 
+function populateCategorySelect(selected = '') {
+  const sel = document.getElementById('inp-category');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">None</option>';
+  categories.forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    if (cat === selected) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
 // ── Categories — no prompt(), inline input instead ────────────────────────────
 function loadCategories() {
   const saved = localStorage.getItem('todofloat-categories');
@@ -439,6 +452,31 @@ function loadCategories() {
   btnCatCancel.addEventListener('click', () => { catInputBar.classList.add('hidden'); inpCat.value = ''; });
 }
 
+function showCatContextMenu(x, y, cat) {
+  const menu = document.getElementById('cat-context-menu');
+  const deleteBtn = document.getElementById('cat-ctx-delete');
+
+  menu.style.left = x + 'px';
+  menu.style.top = y + 'px';
+  menu.classList.remove('hidden');
+
+  // Clean up old listener
+  const newDeleteBtn = deleteBtn.cloneNode(true);
+  deleteBtn.parentNode.replaceChild(newDeleteBtn, deleteBtn);
+
+  newDeleteBtn.addEventListener('click', () => {
+    categories = categories.filter(c => c !== cat);
+    if (activeCategory === cat) activeCategory = 'all';
+    saveCategories(); renderCategories(); renderAll();
+    menu.classList.add('hidden');
+  });
+
+  // Click anywhere else closes menu
+  setTimeout(() => {
+    document.addEventListener('click', () => menu.classList.add('hidden'), { once: true });
+  }, 0);
+}
+
 function saveCategories() {
   localStorage.setItem('todofloat-categories', JSON.stringify(categories));
 }
@@ -451,15 +489,19 @@ function renderCategories() {
     const btn = document.createElement('button');
     btn.className = 'cat-btn' + (activeCategory === cat ? ' active' : '');
     btn.dataset.cat = cat;
-    btn.innerHTML = `${escHtml(cat)} <span class="cat-del">✕</span>`;
-    btn.addEventListener('click', e => {
-      if (e.target.classList.contains('cat-del')) {
-        categories = categories.filter(c => c !== cat);
-        if (activeCategory === cat) activeCategory = 'all';
-        saveCategories(); renderCategories(); renderAll(); return;
-      }
+    btn.textContent = cat;
+
+    // Left click — select category
+    btn.addEventListener('click', () => {
       activeCategory = cat; renderCategories(); renderAll();
     });
+
+    // Right click — show context menu
+    btn.addEventListener('contextmenu', e => {
+      e.preventDefault();
+      showCatContextMenu(e.clientX, e.clientY, cat);
+    });
+
     bar.insertBefore(btn, addBtn);
   });
   const allBtn = bar.querySelector('[data-cat="all"]');
@@ -509,15 +551,3 @@ function attachSearchListeners() {
 
 attachSearchListeners();
 init();
-
-function populateCategorySelect(selected = '') {
-  const sel = document.getElementById('inp-category');
-  sel.innerHTML = '<option value="">None</option>';
-  categories.forEach(cat => {
-    const opt = document.createElement('option');
-    opt.value = cat;
-    opt.textContent = cat;
-    if (cat === selected) opt.selected = true;
-    sel.appendChild(opt);
-  });
-}

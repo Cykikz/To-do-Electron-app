@@ -117,12 +117,6 @@
         <button id="modal-close">✕</button>
       </div>
       <div class="field">
-        <label>Category</label>
-        <select id="inp-category">
-          <option value="">None</option>
-        </select>
-      </div>
-      <div class="field">
         <label>Task title</label>
         <input type="text" id="inp-title" placeholder="What needs to be done?" maxlength="120" />
       </div>
@@ -130,19 +124,19 @@
         <label>Notes</label>
         <textarea id="inp-notes" placeholder="Optional notes..." rows="2"></textarea>
       </div>
-      <div class="field-row">
-        <div class="field half">
-          <label>Priority</label>
-          <div id="prio-select">
-            <button class="prio-opt" data-val="high">🔴 High</button>
-            <button class="prio-opt active" data-val="med">🟡 Med</button>
-            <button class="prio-opt" data-val="low">🟢 Low</button>
-          </div>
+      <div class="field">
+        <label>Priority</label>
+        <div id="prio-select">
+          <button class="prio-opt" data-val="high">🔴 High</button>
+          <button class="prio-opt active" data-val="med">🟡 Med</button>
+          <button class="prio-opt" data-val="low">🟢 Low</button>
         </div>
-        <div class="field half">
-          <label>Label / Tag</label>
-          <input type="text" id="inp-label" placeholder="e.g. Work, Personal" maxlength="20" />
-        </div>
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="inp-category">
+          <option value="">None</option>
+        </select>
       </div>
       <div class="field">
         <label>Due date & time</label>
@@ -186,6 +180,11 @@
         <button id="btn-save">Save Task</button>
       </div>
     </div>
+  </div>
+
+  <!-- Right click context menu for categories -->
+  <div id="cat-context-menu" class="hidden">
+    <button id="cat-ctx-delete">🗑 Delete category</button>
   </div>
 
   <div id="toast-container"></div>

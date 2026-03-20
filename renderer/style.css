@@ -1552,6 +1552,7 @@ input[type="range"]::-webkit-slider-thumb {
       transparent 65%, transparent 80%, var(--accent) 80%, var(--accent) 90%, transparent 90%);
 }
 
+/* ── Category select in modal ─────────────────────────────────────────────── */
 #inp-category {
   width: 100%;
   background: var(--bg3);
@@ -1563,7 +1564,8 @@ input[type="range"]::-webkit-slider-thumb {
   font-size: 13px;
   outline: none;
   cursor: pointer;
-  transition: border-color var(--transition);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  appearance: none;
 }
 
 #inp-category:focus {
@@ -1572,6 +1574,41 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 #inp-category option {
-  background: var(--bg3);
+  background: var(--bg2);
   color: var(--text);
+}
+
+/* ── Category right-click context menu ───────────────────────────────────── */
+#cat-context-menu {
+  position: fixed;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  z-index: 9999;
+  box-shadow: var(--shadow);
+  min-width: 150px;
+}
+
+#cat-context-menu button {
+  width: 100%;
+  padding: 7px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--red);
+  font-family: var(--font);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+#cat-context-menu button:hover {
+  background: rgba(255, 94, 108, .1);
+}
+
+/* Remove cat-del styles since we use context menu now */
+.cat-del {
+  display: none;
 }

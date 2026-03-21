@@ -362,9 +362,8 @@ function attachGlobalListeners() {
 
   btnPin.addEventListener('click', () => {
     const pinned = btnPin.classList.toggle('pinned');
-    window.todoAPI.togglePin(pinned);
+    window.todoAPI.setMovable(!pinned);
   });
-
   document.getElementById('btn-collapse').addEventListener('click', () => {
     const appEl = document.getElementById('app');
     const isCollapsed = appEl.classList.toggle('collapsed');

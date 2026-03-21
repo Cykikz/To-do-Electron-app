@@ -1506,9 +1506,8 @@ input[type="range"]::-webkit-slider-thumb {
 
 .dd-options {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-bottom: 4px;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .dd-divider {
@@ -1550,15 +1549,17 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .fd-opt {
-  padding: 3px 10px;
-  border-radius: 20px;
-  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: none;
   background: transparent;
   color: var(--text2);
   font-family: var(--font);
-  font-size: 11px;
+  font-size: 12px;
   cursor: pointer;
+  text-align: left;
   transition: all var(--transition);
+  width: 100%;
 }
 
 .fd-opt:hover {

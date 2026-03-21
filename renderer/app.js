@@ -510,7 +510,17 @@ function updateFilterDropdownCats() {
   if (!container) return;
   container.innerHTML = `<button class="fd-opt${activeCategory === 'all' ? ' active' : ''}" data-type="cat" data-val="all">All</button>`;
   categories.forEach(cat => {
-    container.innerHTML += `<button class="fd-opt${activeCategory === cat ? ' active' : ''}" data-type="cat" data-val="${cat}">${escHtml(cat)}<button class="cat-del-btn" data-del="${escHtml(cat)}">✕</button></button>`;
+    const btn = document.createElement('button');
+    btn.className = `fd-opt${activeCategory === cat ? ' active' : ''}`;
+    btn.dataset.type = 'cat';
+    btn.dataset.val = cat;
+    btn.textContent = cat;
+    btn.addEventListener('contextmenu', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      showCatContextMenu(e.clientX, e.clientY, cat);
+    });
+    container.appendChild(btn);
   });
 
   // Delete buttons

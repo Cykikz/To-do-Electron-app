@@ -9,7 +9,6 @@ let searchQuery = '';
 let dragSrcId = null;
 let activeCategory = 'all';
 let categories = [];
-let pinState = 1; // 0=normal, 1=alwaysOnTop+movable, 2=alwaysOnTop+locked
 
 let draftSubtasks = [];
 let selectedDate = null;
@@ -44,8 +43,7 @@ const statOverdue = document.getElementById('stat-overdue');
 async function init() {
   tasks = await window.todoAPI.loadTasks();
   const settings = await window.todoAPI.getSettings();
-  pinState = (settings.pinState !== undefined) ? settings.pinState : 1;
-  applyPinState();
+  btnPin.classList.toggle('pinned', settings.alwaysOnTop);
   if (settings.collapsed) {
     document.getElementById('app').classList.add('collapsed');
     const btn = document.getElementById('btn-collapse');
@@ -346,24 +344,6 @@ function openEditModal(id) {
 }
 function closeModal() { modalOverlay.classList.add('hidden'); editingId = null; }
 
-function applyPinState() {
-  // Remove all pin classes
-  btnPin.classList.remove('pinned', 'pinned2');
-
-  if (pinState === 0) {
-    // Normal — draggable, not always on top
-    btnPin.title = 'Click to pin (always on top)';
-  } else if (pinState === 1) {
-    // Always on top + draggable
-    btnPin.classList.add('pinned');
-    btnPin.title = 'Click to lock position';
-  } else if (pinState === 2) {
-    // Always on top + locked (not draggable)
-    btnPin.classList.add('pinned', 'pinned2');
-    btnPin.title = 'Click to unpin';
-  }
-}
-
 function attachGlobalListeners() {
   fab.addEventListener('click', openAddModal);
   btnSave.addEventListener('click', saveTask);
@@ -381,9 +361,8 @@ function attachGlobalListeners() {
   document.getElementById('btn-close').addEventListener('click', () => window.todoAPI.hide());
 
   btnPin.addEventListener('click', () => {
-    pinState = (pinState + 1) % 3;
-    applyPinState();
-    window.todoAPI.setPinState(pinState);
+    const pinned = btnPin.classList.toggle('pinned');
+    window.todoAPI.togglePin(pinned);
   });
 
   document.getElementById('btn-collapse').addEventListener('click', () => {

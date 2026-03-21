@@ -9,6 +9,7 @@ let searchQuery = '';
 let dragSrcId = null;
 let activeCategory = 'all';
 let categories = [];
+let recurringFilter = 'all';
 
 let draftSubtasks = [];
 let selectedDate = null;
@@ -80,7 +81,8 @@ function getFilteredTasks() {
     }
     if (filter === 'pending' && t.done) return false;
     if (filter === 'done' && !t.done) return false;
-    if (filter === 'daily' && !t.daily) return false;
+    if (filter === 'daily' && !t.repeat) return false;
+    if (recurringFilter !== 'all' && t.repeat !== recurringFilter) return false;
     if (prioFilter !== 'all' && t.priority !== prioFilter) return false;
     if (activeCategory !== 'all' && t.category !== activeCategory) return false;
     if (searchQuery) {
@@ -136,41 +138,39 @@ function buildTaskCard(t) {
         <button data-action="delete" class="task-del" title="Delete">🗑</button>
       </div>
     </div>
-    ${(t.label || t.dueTs || t.daily) ? `
+    ${(t.label || t.dueTs || t.repeat) ? `
     <div class="task-meta">
-      ${t.label ? `<span class="tag tag-label">${escHtml(t.label)}</span>` : ''}
+      ${t.category ? `<span class="tag tag-label">${escHtml(t.category)}</span>` : ''}
       ${t.dueTs ? `<span class="tag tag-due ${dueCls}">${dueLabel}</span>` : ''}
-      ${t.daily ? `<span class="tag tag-daily">↻ Daily</span>` : ''}
+      ${t.repeat ? `<span class="tag tag-daily">↻ ${t.repeat.charAt(0).toUpperCase() + t.repeat.slice(1)}</span>` : ''}
     </div>` : ''}
     ${sub.length > 0 ? `
-    <ul class="subtask-list">
+    <div class="subtask-toggle" data-action="toggleSubs">
+      <svg class="subtask-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+        <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      ${subDone}/${sub.length} subtasks
+      <div class="subtask-progress-inline">
+        <div class="subtask-progress-fill-inline" style="width:${subPct}%"></div>
+      </div>
+    </div>
+    <ul class="subtask-list collapsed">
       ${sub.map((s, i) => `
         <li class="subtask-item${s.done ? ' done' : ''}" data-sub="${i}">
           <div class="subtask-dot"></div>
           <span>${escHtml(s.text)}</span>
         </li>`).join('')}
-    </ul>
-    <div class="subtask-progress">
-      <div class="subtask-progress-fill" style="width:${subPct}%"></div>
-    </div>` : ''}
-    <div class="task-recurring-row">
-      <div class="recurring-btn${t.daily ? ' is-daily' : ''}" data-action="toggleDaily">
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-          <path d="M5 1v4l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-          <path d="M9 5A4 4 0 1 1 5 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-        </svg>
-        <span class="recurring-tooltip">${t.daily ? 'Remove from Daily' : 'Add to Daily'}</span>
-      </div>
-    </div>
+    </ul>` : ''}
+
   `;
 
   li.addEventListener('click', e => {
     const action = e.target.closest('[data-action]')?.dataset.action;
     const subIdx = e.target.closest('[data-sub]')?.dataset.sub;
     if (action === 'toggle') { toggleTask(t.id); return; }
+    if (action === 'toggleSubs') { e.currentTarget.querySelector('.subtask-list')?.classList.toggle('collapsed'); e.currentTarget.querySelector('.subtask-arrow')?.classList.toggle('open'); return; }
     if (action === 'edit') { openEditModal(t.id); return; }
     if (action === 'delete') { deleteTask(t.id); return; }
-    if (action === 'toggleDaily') { toggleDaily(t.id); return; }
     if (subIdx !== undefined) { toggleSubtask(t.id, parseInt(subIdx)); }
   });
 
@@ -211,13 +211,7 @@ function toggleSubtask(taskId, idx) {
   const t = tasks.find(x => x.id === taskId);
   if (t && t.subtasks[idx]) { t.subtasks[idx].done = !t.subtasks[idx].done; save(); renderAll(); }
 }
-function toggleDaily(id) {
-  const t = tasks.find(x => x.id === id);
-  if (!t) return;
-  t.daily = !t.daily;
-  save(); renderAll();
-  toast(t.daily ? '↻ Added to Daily' : 'Removed from Daily', 'info');
-}
+
 function deleteTask(id) {
   const deletedTask = tasks.find(t => t.id === id);
   const card = document.querySelector(`.task-card[data-id="${id}"]`);
@@ -240,6 +234,7 @@ function saveTask() {
     title, notes: inpNotes.value.trim(),
     priority: getSelectedPriority(), dueTs: buildDueTs(),
     category: document.getElementById('inp-category')?.value || '',
+    repeat: document.getElementById('inp-repeat')?.value || '',
     subtasks: draftSubtasks.slice(), done: false
   };
   if (editingId) {
@@ -319,6 +314,7 @@ function openAddModal() {
   const now = new Date(); calViewYear = now.getFullYear(); calViewMonth = now.getMonth();
   slHrs.value = 12; slMins.value = 0; ampmToggle.textContent = 'AM'; timeAmpm.textContent = 'AM';
   populateCategorySelect('');
+  const repeatEl = document.getElementById('inp-repeat'); if (repeatEl) repeatEl.value = '';
   renderDraftSubtasks(); buildCalendar(calViewYear, calViewMonth); updateTimeDisplay();
   modalOverlay.classList.remove('hidden'); setTimeout(() => inpTitle.focus(), 80);
 }
@@ -339,6 +335,7 @@ function openEditModal(id) {
     slHrs.value = 12; slMins.value = 0; ampmToggle.textContent = 'AM'; timeAmpm.textContent = 'AM';
   }
   populateCategorySelect(t.category || '');
+  const repeatEl2 = document.getElementById('inp-repeat'); if (repeatEl2) repeatEl2.value = t.repeat || '';
   renderDraftSubtasks(); buildCalendar(calViewYear, calViewMonth); updateTimeDisplay();
   modalOverlay.classList.remove('hidden'); setTimeout(() => inpTitle.focus(), 80);
 }
@@ -364,6 +361,7 @@ function attachGlobalListeners() {
     const pinned = btnPin.classList.toggle('pinned');
     window.todoAPI.setMovable(!pinned);
   });
+
   document.getElementById('btn-collapse').addEventListener('click', () => {
     const appEl = document.getElementById('app');
     const isCollapsed = appEl.classList.toggle('collapsed');
@@ -378,13 +376,7 @@ function attachGlobalListeners() {
       renderAll();
     });
   });
-  document.querySelectorAll('.prio-btn').forEach(b => {
-    b.addEventListener('click', () => {
-      prioFilter = b.dataset.prio;
-      document.querySelectorAll('.prio-btn').forEach(x => x.classList.toggle('active', x === b));
-      renderAll();
-    });
-  });
+  // Priority filter handled by filter dropdown
   document.querySelectorAll('.prio-opt').forEach(b => {
     b.addEventListener('click', () => {
       document.querySelectorAll('.prio-opt').forEach(x => x.classList.remove('active'));
@@ -414,11 +406,12 @@ function populateCategorySelect(selected = '') {
   });
 }
 
-// ── Categories — no prompt(), inline input instead ────────────────────────────
+// ── Categories + Filter Dropdown ─────────────────────────────────────────────
 function loadCategories() {
   const saved = localStorage.getItem('todofloat-categories');
   categories = saved ? JSON.parse(saved) : [];
   renderCategories();
+  attachFilterDropdown();
 
   const catInputBar = document.getElementById('cat-input-bar');
   const inpCat = document.getElementById('inp-cat');
@@ -426,30 +419,111 @@ function loadCategories() {
   const btnCatCancel = document.getElementById('btn-cat-cancel');
   const btnAddCat = document.getElementById('btn-add-cat');
 
-  // Show inline input
   btnAddCat.addEventListener('click', () => {
     catInputBar.classList.remove('hidden');
     inpCat.value = '';
     inpCat.focus();
   });
 
-  // Save category
   const saveCategory = () => {
     const name = inpCat.value.trim();
     if (name && !categories.includes(name)) {
       categories.push(name);
       saveCategories();
       renderCategories();
+      updateFilterDropdownCats();
     }
     catInputBar.classList.add('hidden');
     inpCat.value = '';
   };
 
   btnCatSave.addEventListener('click', saveCategory);
-  inpCat.addEventListener('keydown', e => { if (e.key === 'Enter') saveCategory(); if (e.key === 'Escape') { catInputBar.classList.add('hidden'); } });
+  inpCat.addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveCategory();
+    if (e.key === 'Escape') { catInputBar.classList.add('hidden'); }
+  });
   btnCatCancel.addEventListener('click', () => { catInputBar.classList.add('hidden'); inpCat.value = ''; });
 }
 
+function attachFilterDropdown() {
+  ['category', 'priority', 'recurring'].forEach(type => {
+    const chip = document.getElementById(`chip-${type}`);
+    const dd = document.getElementById(`dd-${type}`);
+    if (!chip || !dd) return;
+
+    chip.addEventListener('click', e => {
+      e.stopPropagation();
+      // Close others
+      ['category', 'priority', 'recurring'].forEach(t => {
+        if (t !== type) document.getElementById(`dd-${t}`)?.classList.add('hidden');
+      });
+      dd.classList.toggle('hidden');
+    });
+  });
+
+  // Close all on outside click
+  document.addEventListener('click', () => {
+    ['category', 'priority', 'recurring'].forEach(t => {
+      document.getElementById(`dd-${t}`)?.classList.add('hidden');
+    });
+  });
+
+  // fd-opt selection
+  document.getElementById('filter-actions-bar').addEventListener('click', e => {
+    const opt = e.target.closest('.fd-opt');
+    if (!opt) return;
+    e.stopPropagation();
+    const type = opt.dataset.type;
+    const val = opt.dataset.val;
+
+    opt.closest('.dd-options').querySelectorAll('.fd-opt').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+
+    if (type === 'prio') { prioFilter = val; document.getElementById('chip-priority').classList.toggle('active', val !== 'all'); }
+    if (type === 'cat') { activeCategory = val; document.getElementById('chip-category').classList.toggle('active', val !== 'all'); renderCategories(); }
+    if (type === 'recurring') { recurringFilter = val; document.getElementById('chip-recurring').classList.toggle('active', val !== 'all'); }
+
+    renderAll();
+  });
+
+  // Category add
+  const inpCat = document.getElementById('inp-cat');
+  const btnCatSave = document.getElementById('btn-cat-save');
+
+  const saveCategory = () => {
+    const name = inpCat.value.trim();
+    if (name && !categories.includes(name)) {
+      categories.push(name);
+      saveCategories();
+      updateFilterDropdownCats();
+      populateCategorySelect('');
+    }
+    inpCat.value = '';
+  };
+
+  btnCatSave?.addEventListener('click', saveCategory);
+  inpCat?.addEventListener('keydown', e => { if (e.key === 'Enter') saveCategory(); });
+}
+
+function updateFilterDropdownCats() {
+  const container = document.getElementById('fd-cat-options');
+  if (!container) return;
+  container.innerHTML = `<button class="fd-opt${activeCategory === 'all' ? ' active' : ''}" data-type="cat" data-val="all">All</button>`;
+  categories.forEach(cat => {
+    container.innerHTML += `<button class="fd-opt${activeCategory === cat ? ' active' : ''}" data-type="cat" data-val="${cat}">${escHtml(cat)}<button class="cat-del-btn" data-del="${escHtml(cat)}">✕</button></button>`;
+  });
+
+  // Delete buttons
+  container.querySelectorAll('.cat-del-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const cat = btn.dataset.del;
+      categories = categories.filter(c => c !== cat);
+      if (activeCategory === cat) activeCategory = 'all';
+      saveCategories(); updateFilterDropdownCats(); renderCategories(); renderAll();
+    });
+  });
+}
 function showCatContextMenu(x, y, cat) {
   const menu = document.getElementById('cat-context-menu');
   const deleteBtn = document.getElementById('cat-ctx-delete');
@@ -480,31 +554,28 @@ function saveCategories() {
 }
 
 function renderCategories() {
-  const bar = document.getElementById('categories-bar');
-  const addBtn = document.getElementById('btn-add-cat');
-  bar.querySelectorAll('.cat-btn:not([data-cat="all"])').forEach(b => b.remove());
-  categories.forEach(cat => {
-    const btn = document.createElement('button');
-    btn.className = 'cat-btn' + (activeCategory === cat ? ' active' : '');
-    btn.dataset.cat = cat;
-    btn.textContent = cat;
-
-    // Left click — select category
-    btn.addEventListener('click', () => {
-      activeCategory = cat; renderCategories(); renderAll();
+  // Update dropdown cat options
+  updateFilterDropdownCats();
+  // Update cat chips in filter-actions-bar
+  const chips = document.getElementById('cat-chips');
+  if (!chips) return;
+  chips.innerHTML = '';
+  if (activeCategory !== 'all') {
+    const chip = document.createElement('span');
+    chip.className = 'active-chip';
+    chip.innerHTML = `${activeCategory} <button class="chip-remove">✕</button>`;
+    chip.querySelector('.chip-remove').addEventListener('click', () => {
+      activeCategory = 'all';
+      updateFilterDropdownCats();
+      renderCategories();
+      renderAll();
     });
-
-    // Right click — show context menu
-    btn.addEventListener('contextmenu', e => {
+    chip.addEventListener('contextmenu', e => {
       e.preventDefault();
-      showCatContextMenu(e.clientX, e.clientY, cat);
+      showCatContextMenu(e.clientX, e.clientY, activeCategory);
     });
-
-    bar.insertBefore(btn, addBtn);
-  });
-  const allBtn = bar.querySelector('[data-cat="all"]');
-  allBtn.classList.toggle('active', activeCategory === 'all');
-  allBtn.onclick = () => { activeCategory = 'all'; renderCategories(); renderAll(); };
+    chips.appendChild(chip);
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

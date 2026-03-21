@@ -64,23 +64,7 @@
       <button id="search-clear" class="hidden" title="Clear search">✕</button>
     </div>
 
-    <!-- Categories bar -->
-    <div id="categories-bar">
-      <button class="cat-btn active" data-cat="all">All</button>
-      <button id="btn-add-cat" title="Add category">
-        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-          <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-        </svg>
-      </button>
-    </div>
-
-    <!-- Category input (hidden by default) -->
-    <div id="cat-input-bar" class="hidden">
-      <input type="text" id="inp-cat" placeholder="Category name..." maxlength="20" />
-      <button id="btn-cat-save">Add</button>
-      <button id="btn-cat-cancel">✕</button>
-    </div>
-
+    <!-- Status tabs -->
     <div id="filter-bar">
       <button class="filter-btn active" data-filter="all">All</button>
       <button class="filter-btn" data-filter="today">Today</button>
@@ -89,11 +73,45 @@
       <button class="filter-btn" data-filter="done">Done</button>
     </div>
 
-    <div id="priority-bar">
-      <button class="prio-btn active" data-prio="all">All</button>
-      <button class="prio-btn" data-prio="high">🔴 High</button>
-      <button class="prio-btn" data-prio="med">🟡 Med</button>
-      <button class="prio-btn" data-prio="low">🟢 Low</button>
+    <!-- Three filter chips -->
+    <div id="filter-actions-bar">
+      <div class="filter-chip-wrap">
+        <button class="filter-chip" id="chip-category">Category</button>
+        <div class="chip-dropdown hidden" id="dd-category">
+          <div class="dd-options" id="fd-cat-options">
+            <button class="fd-opt active" data-type="cat" data-val="all">All</button>
+          </div>
+          <div class="dd-divider"></div>
+          <div class="dd-add">
+            <input type="text" id="inp-cat" placeholder="New category..." maxlength="20" />
+            <button id="btn-cat-save">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-chip-wrap">
+        <button class="filter-chip" id="chip-priority">Priority</button>
+        <div class="chip-dropdown hidden" id="dd-priority">
+          <div class="dd-options">
+            <button class="fd-opt active" data-type="prio" data-val="all">All</button>
+            <button class="fd-opt" data-type="prio" data-val="high">High</button>
+            <button class="fd-opt" data-type="prio" data-val="med">Med</button>
+            <button class="fd-opt" data-type="prio" data-val="low">Low</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-chip-wrap">
+        <button class="filter-chip" id="chip-recurring">Recurring</button>
+        <div class="chip-dropdown hidden" id="dd-recurring">
+          <div class="dd-options">
+            <button class="fd-opt active" data-type="recurring" data-val="all">All</button>
+            <button class="fd-opt" data-type="recurring" data-val="daily">Daily</button>
+            <button class="fd-opt" data-type="recurring" data-val="weekly">Weekly</button>
+            <button class="fd-opt" data-type="recurring" data-val="monthly">Monthly</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="task-list-wrapper">
@@ -104,7 +122,6 @@
       </div>
     </div>
 
-    <!-- FAB — plain + not fullwidth -->
     <button id="fab" title="Add Task">+</button>
     <div id="resize-grip"></div>
 
@@ -127,16 +144,27 @@
       <div class="field">
         <label>Priority</label>
         <div id="prio-select">
-          <button class="prio-opt" data-val="high">🔴 High</button>
-          <button class="prio-opt active" data-val="med">🟡 Med</button>
-          <button class="prio-opt" data-val="low">🟢 Low</button>
+          <button class="prio-opt" data-val="high">High</button>
+          <button class="prio-opt active" data-val="med">Med</button>
+          <button class="prio-opt" data-val="low">Low</button>
         </div>
       </div>
-      <div class="field">
-        <label>Category</label>
-        <select id="inp-category">
-          <option value="">None</option>
-        </select>
+      <div class="field-row">
+        <div class="field half">
+          <label>Category</label>
+          <select id="inp-category">
+            <option value="">None</option>
+          </select>
+        </div>
+        <div class="field half">
+          <label>Repeat</label>
+          <select id="inp-repeat">
+            <option value="">None</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
       </div>
       <div class="field">
         <label>Due date & time</label>
@@ -182,9 +210,8 @@
     </div>
   </div>
 
-  <!-- Right click context menu for categories -->
   <div id="cat-context-menu" class="hidden">
-    <button id="cat-ctx-delete">🗑 Delete category</button>
+    <button id="cat-ctx-delete">Delete category</button>
   </div>
 
   <div id="toast-container"></div>

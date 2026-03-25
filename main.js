@@ -44,6 +44,11 @@ function createWindow() {
 
   mainWindow.loadFile('index.html');
 
+  mainWindow.on('focus', () => {
+    if (store.get('alwaysOnTop', true)) {
+      mainWindow.setAlwaysOnTop(true);
+    }
+  });
   mainWindow.on('resize', () => {
     if (!mainWindow.isMinimized() && !store.get('collapsed', false)) {
       store.set('windowBounds', mainWindow.getBounds());

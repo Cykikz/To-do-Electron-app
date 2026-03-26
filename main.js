@@ -190,3 +190,40 @@ ipcMain.on('settings:setStartup', (_, val) => {
   app.setLoginItemSettings({ openAtLogin: val });
 });
 
+// ── Notifications ─────────────────────────────────────────────────────────
+const { Notification } = require('electron');
+const notifiedIds = new Set();
+
+function checkDueNotifications() {
+  const tasks = store.get('tasks', []);
+  const now = Date.now();
+  const window60 = 60 * 1000; // 1 minute window
+
+  tasks.forEach(t => {
+    if (t.done) return;
+    if (!t.dueTs) return;
+    if (notifiedIds.has(t.id)) return;
+    if (t.dueTs > now - window60 && t.dueTs <= now + window60) {
+      notifiedIds.add(t.id);
+      const n = new Notification({
+        title: 'TodoFloat — Task Due',
+        body: t.title,
+        silent: false
+      });
+      n.on('click', () => {
+        if (mainWindow) {
+          mainWindow.show();
+          mainWindow.focus();
+        }
+      });
+      n.show();
+    }
+  });
+}
+
+// Check every 30 seconds
+setInterval(checkDueNotifications, 30 * 1000);
+// Also check once shortly after launch
+app.whenReady().then(() => {
+  setTimeout(checkDueNotifications, 5000);
+});

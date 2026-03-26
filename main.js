@@ -189,3 +189,4 @@ ipcMain.handle('settings:get', () => ({
 ipcMain.on('settings:setStartup', (_, val) => {
   app.setLoginItemSettings({ openAtLogin: val });
 });
+

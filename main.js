@@ -194,36 +194,85 @@ ipcMain.on('settings:setStartup', (_, val) => {
 const { Notification } = require('electron');
 const notifiedIds = new Set();
 
+function fireNotif(title, body, taskId, type) {
+  const key = `${taskId}-${type}`;
+  if (notifiedIds.has(key)) return;
+  notifiedIds.add(key);
+  const n = new Notification({ title, body, silent: false });
+  n.on('click', () => {
+    if (mainWindow) { mainWindow.show(); mainWindow.focus(); }
+  });
+  n.show();
+}
+
 function checkDueNotifications() {
   const tasks = store.get('tasks', []);
-  const now = Date.now();
-  const window60 = 60 * 1000; // 1 minute window
+  const now = new Date();
+  const nowTs = now.getTime();
 
-  tasks.forEach(t => {
-    if (t.done) return;
-    if (!t.dueTs) return;
-    if (notifiedIds.has(t.id)) return;
-    if (t.dueTs > now - window60 && t.dueTs <= now + window60) {
-      notifiedIds.add(t.id);
+  // ── Daily 9 AM summary ──────────────────────────────────────────────────
+  const todayKey = `daily-summary-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  if (now.getHours() >= 9 && !notifiedIds.has(todayKey)) {
+    const dueToday = tasks.filter(t => {
+      if (t.done || !t.dueTs) return false;
+      const d = new Date(t.dueTs);
+      return d.getFullYear() === now.getFullYear()
+        && d.getMonth() === now.getMonth()
+        && d.getDate() === now.getDate();
+    });
+    if (dueToday.length > 0) {
+      notifiedIds.add(todayKey);
       const n = new Notification({
-        title: 'TodoFloat — Task Due',
-        body: t.title,
+        title: 'TodoFloat — Daily Summary',
+        body: `You have ${dueToday.length} task${dueToday.length > 1 ? 's' : ''} due today`,
         silent: false
       });
       n.on('click', () => {
-        if (mainWindow) {
-          mainWindow.show();
-          mainWindow.focus();
-        }
+        if (mainWindow) { mainWindow.show(); mainWindow.focus(); }
       });
       n.show();
+    }
+  }
+
+  tasks.forEach(t => {
+    if (t.done || !t.dueTs) return;
+    const dueDate = new Date(t.dueTs);
+    const isToday = dueDate.getFullYear() === now.getFullYear()
+      && dueDate.getMonth() === now.getMonth()
+      && dueDate.getDate() === now.getDate();
+
+    // ── 12 AM reminder — fires after midnight if task is due today ─────────
+    if (isToday && now.getHours() >= 0) {
+      fireNotif(
+        'TodoFloat — Due Today',
+        `"${t.title}" is due today`,
+        t.id, 'midnight'
+      );
+    }
+
+    // ── 4 hour advance warning ─────────────────────────────────────────────
+    const fourHoursBefore = t.dueTs - (4 * 60 * 60 * 1000);
+    if (nowTs >= fourHoursBefore && nowTs < t.dueTs) {
+      const minsLeft = Math.round((t.dueTs - nowTs) / 60000);
+      fireNotif(
+        'TodoFloat — Due Soon',
+        `"${t.title}" is due in ${minsLeft} mins`,
+        t.id, '4hr'
+      );
+    }
+
+    // ── At due time ────────────────────────────────────────────────────────
+    if (nowTs >= t.dueTs && nowTs < t.dueTs + 60000) {
+      fireNotif(
+        'TodoFloat — Task Due Now',
+        `"${t.title}" is due now`,
+        t.id, 'due'
+      );
     }
   });
 }
 
-// Check every 30 seconds
 setInterval(checkDueNotifications, 30 * 1000);
-// Also check once shortly after launch
 app.whenReady().then(() => {
   setTimeout(checkDueNotifications, 5000);
 });

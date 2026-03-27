@@ -58,6 +58,11 @@ async function init() {
   document.querySelectorAll('.color-swatch').forEach(s =>
     s.classList.toggle('active', s.dataset.color === savedColor)
   );
+  const savedTheme = localStorage.getItem('todofloat-theme') || 'dark';
+  applyTheme(savedTheme);
+  document.querySelectorAll('.theme-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.theme === savedTheme)
+  );
   document.getElementById('toggle-startup').classList.toggle('on', settings.openAtLogin);
   document.getElementById('toggle-alwaysontop').classList.toggle('on', settings.alwaysOnTop);
   loadCategories();
@@ -398,6 +403,15 @@ function attachGlobalListeners() {
     applyAccentColor(color);
     localStorage.setItem('todofloat-accent', color);
   });
+  document.getElementById('theme-options').addEventListener('click', e => {
+    const btn = e.target.closest('.theme-btn');
+    if (!btn) return;
+    const theme = btn.dataset.theme;
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyTheme(theme);
+    localStorage.setItem('todofloat-theme', theme);
+  });
   document.getElementById('btn-collapse').addEventListener('click', () => {
     const appEl = document.getElementById('app');
     const isCollapsed = appEl.classList.toggle('collapsed');
@@ -672,6 +686,19 @@ function applyAccentColor(hex) {
   document.documentElement.style.setProperty('--accent', hex);
   document.documentElement.style.setProperty('--accent2', lighter);
   document.documentElement.style.setProperty('--accent-glow', glow);
+}
+function applyTheme(theme) {
+  let resolved = theme;
+  if (theme === 'system') {
+    resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    // watch for system changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      if (localStorage.getItem('todofloat-theme') === 'system') {
+        applyTheme('system');
+      }
+    });
+  }
+  document.documentElement.setAttribute('data-theme', resolved);
 }
 attachSearchListeners();
 init();

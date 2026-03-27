@@ -361,7 +361,35 @@ function attachGlobalListeners() {
     const pinned = btnPin.classList.toggle('pinned');
     window.todoAPI.setMovable(!pinned);
   });
-
+  // ── Settings panel ──────────────────────────────────────────────────────
+  const settingsPanel = document.getElementById('settings-panel');
+  document.getElementById('btn-settings').addEventListener('click', () => {
+    settingsPanel.classList.toggle('hidden');
+  });
+  document.getElementById('btn-settings-close').addEventListener('click', () => {
+    settingsPanel.classList.add('hidden');
+  });
+  document.getElementById('toggle-startup').addEventListener('click', function () {
+    const on = this.classList.toggle('on');
+    window.todoAPI.setStartup(on);
+  });
+  document.getElementById('toggle-alwaysontop').addEventListener('click', function () {
+    const on = this.classList.toggle('on');
+    window.todoAPI.togglePin(on);
+  });
+  document.getElementById('toggle-lockpos').addEventListener('click', function () {
+    const on = this.classList.toggle('on');
+    window.todoAPI.setMovable(!on);
+  });
+  document.getElementById('color-grid').addEventListener('click', e => {
+    const swatch = e.target.closest('.color-swatch');
+    if (!swatch) return;
+    const color = swatch.dataset.color;
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+    swatch.classList.add('active');
+    applyAccentColor(color);
+    localStorage.setItem('todofloat-accent', color);
+  });
   document.getElementById('btn-collapse').addEventListener('click', () => {
     const appEl = document.getElementById('app');
     const isCollapsed = appEl.classList.toggle('collapsed');

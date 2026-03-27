@@ -52,6 +52,14 @@ async function init() {
   }
   renderAll();
   attachGlobalListeners();
+  // restore settings state
+  const savedColor = localStorage.getItem('todofloat-accent') || '#7c6af7';
+  applyAccentColor(savedColor);
+  document.querySelectorAll('.color-swatch').forEach(s =>
+    s.classList.toggle('active', s.dataset.color === savedColor)
+  );
+  document.getElementById('toggle-startup').classList.toggle('on', settings.openAtLogin);
+  document.getElementById('toggle-alwaysontop').classList.toggle('on', settings.alwaysOnTop);
   loadCategories();
 }
 
@@ -655,6 +663,15 @@ function attachSearchListeners() {
   clear.addEventListener('click', () => { inp.value = ''; searchQuery = ''; clear.classList.add('hidden'); inp.focus(); renderAll(); });
   document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); inp.focus(); inp.select(); } });
 }
-
+function applyAccentColor(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const lighter = `rgb(${Math.min(r + 35, 255)}, ${Math.min(g + 35, 255)}, ${Math.min(b + 35, 255)})`;
+  const glow = `rgba(${r}, ${g}, ${b}, 0.25)`;
+  document.documentElement.style.setProperty('--accent', hex);
+  document.documentElement.style.setProperty('--accent2', lighter);
+  document.documentElement.style.setProperty('--accent-glow', glow);
+}
 attachSearchListeners();
 init();

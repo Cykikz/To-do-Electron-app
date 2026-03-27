@@ -382,6 +382,13 @@ function attachGlobalListeners() {
   document.getElementById('btn-settings-close').addEventListener('click', () => {
     settingsPanel.classList.add('hidden');
   });
+
+  document.addEventListener('click', e => {
+    if (settingsPanel.classList.contains('hidden')) return;
+    if (settingsPanel.contains(e.target)) return;
+    if (e.target.closest('#btn-settings')) return;
+    settingsPanel.classList.add('hidden');
+  });
   document.getElementById('toggle-startup').addEventListener('click', function () {
     const on = this.classList.toggle('on');
     window.todoAPI.setStartup(on);

@@ -9,7 +9,7 @@ contextBridge.exposeInMainWorld('todoAPI', {
   close: () => ipcRenderer.send('window:close'),
   // Pin original
   togglePin: (val) => ipcRenderer.send('window:togglePin', val),
-  // Pin 3-state (NEW)
+  // Pin 3-state
   setPinState: (state) => ipcRenderer.send('window:setPinState', state),
   // Collapse
   setCollapsed: (val) => ipcRenderer.send('window:setCollapsed', val),
@@ -18,4 +18,7 @@ contextBridge.exposeInMainWorld('todoAPI', {
   setStartup: (val) => ipcRenderer.send('settings:setStartup', val),
   // Movable
   setMovable: (val) => ipcRenderer.send('window:setMovable', val),
+  // Shortcuts
+  registerGlobalShortcut: (accelerator) => ipcRenderer.send('shortcut:setGlobal', accelerator),
+  getGlobalShortcut: () => ipcRenderer.invoke('shortcut:getGlobal'),
 });

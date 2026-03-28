@@ -119,85 +119,183 @@
         </div>
       </div>
 
+      <div class="settings-section">
+        <div class="settings-row settings-nav-row" id="btn-open-shortcuts">
+          <div class="settings-row-info">
+            <span class="settings-row-title">Keyboard Shortcuts</span>
+            <span class="settings-row-desc">View and rebind all shortcuts</span>
+          </div>
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path d="M3 1.5L7 5L3 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+
       <div class="settings-version">TodoFloat v1.0</div>
     </div>
-    <div id="stats-bar">
-      <span id="stat-total"></span>
-      <span id="stat-done"></span>
-      <span id="stat-overdue"></span>
-    </div>
 
-    <div id="search-bar">
-      <span id="search-icon">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.5" />
-          <path d="M8.5 8.5L11 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-        </svg>
-      </span>
-      <input type="text" id="inp-search" placeholder="Search tasks..." maxlength="80" autocomplete="off" />
-      <button id="search-clear" class="hidden" title="Clear search">✕</button>
-    </div>
+    <!-- Shortcuts Page — separate panel, slides in -->
+    <div id="shortcuts-panel" class="hidden">
+      <div class="settings-header">
+        <button id="btn-shortcuts-back">
+          <svg width="11" height="11" viewBox="0 0 10 10" fill="none">
+            <path d="M7 1.5L3 5L7 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+        </button>
+        <span>Keyboard Shortcuts</span>
+        <button id="btn-shortcuts-close">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+            <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
 
-    <!-- Status tabs -->
-    <div id="filter-bar">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="today">Today</button>
-      <button class="filter-btn" data-filter="daily">Daily</button>
-      <button class="filter-btn" data-filter="pending">Pending</button>
-      <button class="filter-btn" data-filter="done">Done</button>
-    </div>
-
-    <!-- Three filter chips -->
-    <div id="filter-actions-bar">
-      <div class="filter-chip-wrap">
-        <button class="filter-chip" id="chip-category">Category</button>
-        <div class="chip-dropdown hidden" id="dd-category">
-          <div class="dd-options" id="fd-cat-options">
-            <button class="fd-opt active" data-type="cat" data-val="all">All</button>
+      <div class="shortcuts-list">
+        <div class="shortcut-row" data-sc="show">
+          <div class="shortcut-info">
+            <span class="shortcut-name">Show / Hide App</span>
+            <span class="shortcut-hint">Global — works when app is hidden</span>
           </div>
-          <div class="dd-divider"></div>
-          <div class="dd-add">
-            <input type="text" id="inp-cat" placeholder="New category..." maxlength="20" />
-            <button id="btn-cat-save">Add</button>
+          <div class="shortcut-right">
+            <span class="shortcut-key" id="sc-show-key">Ctrl+Shift+T</span>
+            <button class="shortcut-change-btn" data-sc="show">Change</button>
+          </div>
+        </div>
+
+        <div class="shortcut-row" data-sc="collapse">
+          <div class="shortcut-info">
+            <span class="shortcut-name">Collapse / Expand</span>
+            <span class="shortcut-hint">When app is focused</span>
+          </div>
+          <div class="shortcut-right">
+            <span class="shortcut-key" id="sc-collapse-key">C</span>
+            <button class="shortcut-change-btn" data-sc="collapse">Change</button>
+          </div>
+        </div>
+
+        <div class="shortcut-row" data-sc="new">
+          <div class="shortcut-info">
+            <span class="shortcut-name">New Task</span>
+            <span class="shortcut-hint">When app is focused</span>
+          </div>
+          <div class="shortcut-right">
+            <span class="shortcut-key" id="sc-new-key">Ctrl+N</span>
+            <button class="shortcut-change-btn" data-sc="new">Change</button>
+          </div>
+        </div>
+
+        <div class="shortcut-row" data-sc="search">
+          <div class="shortcut-info">
+            <span class="shortcut-name">Search</span>
+            <span class="shortcut-hint">When app is focused</span>
+          </div>
+          <div class="shortcut-right">
+            <span class="shortcut-key" id="sc-search-key">Ctrl+F</span>
+            <button class="shortcut-change-btn" data-sc="search">Change</button>
+          </div>
+        </div>
+
+        <div class="shortcut-row" data-sc="save">
+          <div class="shortcut-info">
+            <span class="shortcut-name">Save Task</span>
+            <span class="shortcut-hint">Inside task modal</span>
+          </div>
+          <div class="shortcut-right">
+            <span class="shortcut-key" id="sc-save-key">Ctrl+Enter</span>
+            <button class="shortcut-change-btn" data-sc="save">Change</button>
+          </div>
+        </div>
+
+        <div class="shortcut-row" data-sc="close">
+          <div class="shortcut-info">
+            <span class="shortcut-name">Close Modal</span>
+            <span class="shortcut-hint">Inside task modal</span>
+          </div>
+          <div class="shortcut-right">
+            <span class="shortcut-key" id="sc-close-key">Escape</span>
+            <button class="shortcut-change-btn" data-sc="close">Change</button>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+  <div id="stats-bar">
+    <span id="stat-total"></span>
+    <span id="stat-done"></span>
+    <span id="stat-overdue"></span>
+  </div>
 
-      <div class="filter-chip-wrap">
-        <button class="filter-chip" id="chip-priority">Priority</button>
-        <div class="chip-dropdown hidden" id="dd-priority">
-          <div class="dd-options">
-            <button class="fd-opt active" data-type="prio" data-val="all">All</button>
-            <button class="fd-opt" data-type="prio" data-val="high">High</button>
-            <button class="fd-opt" data-type="prio" data-val="med">Med</button>
-            <button class="fd-opt" data-type="prio" data-val="low">Low</button>
-          </div>
+  <div id="search-bar">
+    <span id="search-icon">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.5" />
+        <path d="M8.5 8.5L11 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </svg>
+    </span>
+    <input type="text" id="inp-search" placeholder="Search tasks..." maxlength="80" autocomplete="off" />
+    <button id="search-clear" class="hidden" title="Clear search">✕</button>
+  </div>
+
+  <!-- Status tabs -->
+  <div id="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="today">Today</button>
+    <button class="filter-btn" data-filter="daily">Daily</button>
+    <button class="filter-btn" data-filter="pending">Pending</button>
+    <button class="filter-btn" data-filter="done">Done</button>
+  </div>
+
+  <!-- Three filter chips -->
+  <div id="filter-actions-bar">
+    <div class="filter-chip-wrap">
+      <button class="filter-chip" id="chip-category">Category</button>
+      <div class="chip-dropdown hidden" id="dd-category">
+        <div class="dd-options" id="fd-cat-options">
+          <button class="fd-opt active" data-type="cat" data-val="all">All</button>
         </div>
-      </div>
-
-      <div class="filter-chip-wrap">
-        <button class="filter-chip" id="chip-recurring">Recurring</button>
-        <div class="chip-dropdown hidden" id="dd-recurring">
-          <div class="dd-options">
-            <button class="fd-opt active" data-type="recurring" data-val="all">All</button>
-            <button class="fd-opt" data-type="recurring" data-val="daily">Daily</button>
-            <button class="fd-opt" data-type="recurring" data-val="weekly">Weekly</button>
-            <button class="fd-opt" data-type="recurring" data-val="monthly">Monthly</button>
-          </div>
+        <div class="dd-divider"></div>
+        <div class="dd-add">
+          <input type="text" id="inp-cat" placeholder="New category..." maxlength="20" />
+          <button id="btn-cat-save">Add</button>
         </div>
       </div>
     </div>
 
-    <div id="task-list-wrapper">
-      <ul id="task-list"></ul>
-      <div id="empty-state">
-        <span>✦</span>
-        <p>Nothing here yet.<br />Add your first task!</p>
+    <div class="filter-chip-wrap">
+      <button class="filter-chip" id="chip-priority">Priority</button>
+      <div class="chip-dropdown hidden" id="dd-priority">
+        <div class="dd-options">
+          <button class="fd-opt active" data-type="prio" data-val="all">All</button>
+          <button class="fd-opt" data-type="prio" data-val="high">High</button>
+          <button class="fd-opt" data-type="prio" data-val="med">Med</button>
+          <button class="fd-opt" data-type="prio" data-val="low">Low</button>
+        </div>
       </div>
     </div>
 
-    <button id="fab" title="Add Task">+</button>
-    <div id="resize-grip"></div>
+    <div class="filter-chip-wrap">
+      <button class="filter-chip" id="chip-recurring">Recurring</button>
+      <div class="chip-dropdown hidden" id="dd-recurring">
+        <div class="dd-options">
+          <button class="fd-opt active" data-type="recurring" data-val="all">All</button>
+          <button class="fd-opt" data-type="recurring" data-val="daily">Daily</button>
+          <button class="fd-opt" data-type="recurring" data-val="weekly">Weekly</button>
+          <button class="fd-opt" data-type="recurring" data-val="monthly">Monthly</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="task-list-wrapper">
+    <ul id="task-list"></ul>
+    <div id="empty-state">
+      <span>✦</span>
+      <p>Nothing here yet.<br />Add your first task!</p>
+    </div>
+  </div>
+
+  <button id="fab" title="Add Task">+</button>
+  <div id="resize-grip"></div>
 
   </div>
 

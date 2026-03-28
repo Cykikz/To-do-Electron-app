@@ -276,3 +276,39 @@ setInterval(checkDueNotifications, 30 * 1000);
 app.whenReady().then(() => {
   setTimeout(checkDueNotifications, 5000);
 });
+
+// ── Global Shortcut ───────────────────────────────────────────────────────
+const { globalShortcut } = require('electron');
+
+function registerShowShortcut(accelerator) {
+  globalShortcut.unregisterAll();
+  try {
+    globalShortcut.register(accelerator, () => {
+      if (!mainWindow) { createWindow(); return; }
+      if (mainWindow.isVisible() && mainWindow.isFocused()) {
+        mainWindow.hide();
+      } else {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    });
+  } catch (e) {
+    console.log('Invalid shortcut:', accelerator);
+  }
+}
+
+app.whenReady().then(() => {
+  const saved = store.get('globalShortcut', 'CommandOrControl+Shift+T');
+  registerShowShortcut(saved);
+});
+
+app.on('will-quit', () => globalShortcut.unregisterAll());
+
+ipcMain.on('shortcut:setGlobal', (_, accelerator) => {
+  store.set('globalShortcut', accelerator);
+  registerShowShortcut(accelerator);
+});
+
+ipcMain.handle('shortcut:getGlobal', () => {
+  return store.get('globalShortcut', 'CommandOrControl+Shift+T');
+});

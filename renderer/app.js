@@ -52,6 +52,8 @@ async function init() {
   }
   renderAll();
   attachGlobalListeners();
+  initShortcutUI();
+  applyShortcuts();
   // restore settings state
   const savedColor = localStorage.getItem('todofloat-accent') || '#7c6af7';
   applyAccentColor(savedColor);
@@ -706,6 +708,197 @@ function applyTheme(theme) {
     });
   }
   document.documentElement.setAttribute('data-theme', resolved);
+}
+
+// ── Keyboard Shortcuts System ─────────────────────────────────────────────
+const DEFAULT_SHORTCUTS = {
+  show: 'Ctrl+Shift+T',
+  collapse: 'C',
+  new: 'Ctrl+N',
+  search: 'Ctrl+F',
+  save: 'Ctrl+Enter',
+  close: 'Escape'
+};
+
+function loadShortcuts() {
+  const saved = localStorage.getItem('todofloat-shortcuts');
+  return saved ? { ...DEFAULT_SHORTCUTS, ...JSON.parse(saved) } : { ...DEFAULT_SHORTCUTS };
+}
+
+function saveShortcuts(sc) {
+  localStorage.setItem('todofloat-shortcuts', JSON.stringify(sc));
+}
+
+function matchesShortcut(e, combo) {
+  if (!combo) return false;
+  const parts = combo.toLowerCase().split('+');
+  const key = parts[parts.length - 1];
+  const ctrl = parts.includes('ctrl');
+  const shift = parts.includes('shift');
+  const alt = parts.includes('alt');
+  return e.ctrlKey === ctrl
+    && e.shiftKey === shift
+    && e.altKey === alt
+    && e.key.toLowerCase() === key;
+}
+
+function applyShortcuts() {
+  const sc = loadShortcuts();
+
+  // Update all key display labels
+  Object.keys(sc).forEach(id => {
+    const el = document.getElementById(`sc-${id}-key`);
+    if (el) el.textContent = sc[id];
+  });
+
+  // Remove old listener
+  if (window._shortcutHandler) {
+    document.removeEventListener('keydown', window._shortcutHandler, true);
+  }
+
+  window._shortcutHandler = (e) => {
+    const modalOpen = !modalOverlay.classList.contains('hidden');
+    const inInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
+
+    // Escape
+    if (matchesShortcut(e, sc.close)) {
+      const settingsOpen = !document.getElementById('settings-panel').classList.contains('hidden');
+      const shortcutsOpen = !document.getElementById('shortcuts-panel').classList.contains('hidden');
+      if (modalOpen) { closeModal(); return; }
+      if (shortcutsOpen) { document.getElementById('shortcuts-panel').classList.add('hidden'); return; }
+      if (settingsOpen) { document.getElementById('settings-panel').classList.add('hidden'); return; }
+    }
+
+    // Save task
+    if (matchesShortcut(e, sc.save) && modalOpen) {
+      e.preventDefault(); saveTask(); return;
+    }
+
+    // Skip if modal open or typing
+    if (modalOpen || inInput) return;
+
+    // New task
+    if (matchesShortcut(e, sc.new)) {
+      e.preventDefault(); openAddModal(); return;
+    }
+
+    // Search
+    if (matchesShortcut(e, sc.search)) {
+      e.preventDefault();
+      const inp = document.getElementById('inp-search');
+      inp.focus(); inp.select(); return;
+    }
+
+    // Collapse
+    if (matchesShortcut(e, sc.collapse)) {
+      e.preventDefault();
+      const appEl = document.getElementById('app');
+      const isCollapsed = appEl.classList.toggle('collapsed');
+      document.getElementById('btn-collapse').classList.toggle('collapsed', isCollapsed);
+      window.todoAPI.setCollapsed(isCollapsed);
+      return;
+    }
+  };
+
+  document.addEventListener('keydown', window._shortcutHandler, true);
+}
+
+function initShortcutUI() {
+  const sc = loadShortcuts();
+
+  // Sync global shortcut from main process
+  window.todoAPI.getGlobalShortcut().then(accelerator => {
+    const display = accelerator
+      .replace('CommandOrControl', 'Ctrl')
+      .replace('Control', 'Ctrl');
+    sc.show = display;
+    saveShortcuts(sc);
+    const el = document.getElementById('sc-show-key');
+    if (el) el.textContent = display;
+  });
+
+  // Nav to shortcuts page
+  document.getElementById('btn-open-shortcuts').addEventListener('click', () => {
+    document.getElementById('settings-panel').classList.add('hidden');
+    document.getElementById('shortcuts-panel').classList.remove('hidden');
+    applyShortcuts(); // refresh labels
+  });
+
+  document.getElementById('btn-shortcuts-back').addEventListener('click', () => {
+    document.getElementById('shortcuts-panel').classList.add('hidden');
+    document.getElementById('settings-panel').classList.remove('hidden');
+  });
+
+  document.getElementById('btn-shortcuts-close').addEventListener('click', () => {
+    document.getElementById('shortcuts-panel').classList.add('hidden');
+  });
+
+  // Change button recording
+  document.querySelectorAll('.shortcut-change-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.sc;
+      const keyEl = document.getElementById(`sc-${id}-key`);
+
+      // Cancel any other recording
+      document.querySelectorAll('.shortcut-change-btn.recording').forEach(b => {
+        if (b !== btn) {
+          b.textContent = 'Change';
+          b.classList.remove('recording');
+        }
+      });
+
+      btn.textContent = 'Press keys...';
+      btn.classList.add('recording');
+
+      const onKey = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Escape cancels
+        if (e.key === 'Escape') {
+          btn.textContent = 'Change';
+          btn.classList.remove('recording');
+          document.removeEventListener('keydown', onKey, true);
+          return;
+        }
+
+        // Ignore lone modifiers
+        if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) return;
+
+        // Build combo string
+        const parts = [];
+        if (e.ctrlKey) parts.push('Ctrl');
+        if (e.shiftKey) parts.push('Shift');
+        if (e.altKey) parts.push('Alt');
+        parts.push(e.key.length === 1 ? e.key.toUpperCase() : e.key);
+        const combo = parts.join('+');
+
+        // Save
+        const sc = loadShortcuts();
+        sc[id] = combo;
+        saveShortcuts(sc);
+
+        // If global shortcut, register in main process
+        if (id === 'show') {
+          const accelerator = combo
+            .replace('Ctrl', 'CommandOrControl')
+            .replace('Enter', 'Return');
+          window.todoAPI.registerGlobalShortcut(accelerator);
+        }
+
+        // Update UI
+        if (keyEl) keyEl.textContent = combo;
+        btn.textContent = 'Change';
+        btn.classList.remove('recording');
+        document.removeEventListener('keydown', onKey, true);
+
+        // Re-apply all shortcuts
+        applyShortcuts();
+      };
+
+      document.addEventListener('keydown', onKey, true);
+    });
+  });
 }
 attachSearchListeners();
 init();

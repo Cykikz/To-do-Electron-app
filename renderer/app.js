@@ -322,6 +322,9 @@ function addDraftSubtask() {
 }
 
 function openAddModal() {
+  // Close settings/shortcuts panel if open
+  document.getElementById('settings-panel')?.classList.add('hidden');
+  document.getElementById('shortcuts-panel')?.classList.add('hidden');
   editingId = null; modalTitle.textContent = 'New Task';
   inpTitle.value = ''; inpNotes.value = '';
   draftSubtasks = []; selectedDate = null;
@@ -334,6 +337,8 @@ function openAddModal() {
   modalOverlay.classList.remove('hidden'); setTimeout(() => inpTitle.focus(), 80);
 }
 function openEditModal(id) {
+  document.getElementById('settings-panel')?.classList.add('hidden');
+  document.getElementById('shortcuts-panel')?.classList.add('hidden');
   const t = tasks.find(x => x.id === id); if (!t) return;
   editingId = id; modalTitle.textContent = 'Edit Task';
   inpTitle.value = t.title; inpNotes.value = t.notes || '';
@@ -777,9 +782,16 @@ function applyShortcuts() {
     // Skip if modal open or typing
     if (modalOpen || inInput) return;
 
-    // New task
+    // New task — auto-expand if collapsed first
     if (matchesShortcut(e, sc.new)) {
-      e.preventDefault(); openAddModal(); return;
+      e.preventDefault();
+      const appEl = document.getElementById('app');
+      if (appEl.classList.contains('collapsed')) {
+        appEl.classList.remove('collapsed');
+        document.getElementById('btn-collapse').classList.remove('collapsed');
+        window.todoAPI.setCollapsed(false);
+      }
+      openAddModal(); return;
     }
 
     // Search
@@ -795,6 +807,8 @@ function applyShortcuts() {
       const appEl = document.getElementById('app');
       const isCollapsed = appEl.classList.toggle('collapsed');
       document.getElementById('btn-collapse').classList.toggle('collapsed', isCollapsed);
+      document.getElementById('settings-panel')?.classList.add('hidden');
+      document.getElementById('shortcuts-panel')?.classList.add('hidden');
       window.todoAPI.setCollapsed(isCollapsed);
       return;
     }

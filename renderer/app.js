@@ -10,7 +10,7 @@ let dragSrcId = null;
 let activeCategory = 'all';
 let categories = [];
 let recurringFilter = 'all';
-
+let dueDateSort = 'none'; // 'none' | 'asc' | 'desc'
 let draftSubtasks = [];
 let selectedDate = null;
 let calViewYear = new Date().getFullYear();
@@ -88,7 +88,7 @@ function renderStats() {
 function getFilteredTasks() {
   const now = new Date();
   const todayStr = dateStr(now.getFullYear(), now.getMonth(), now.getDate());
-  return tasks.filter(t => {
+  let filtered = tasks.filter(t => {
     if (filter === 'today') {
       if (!t.dueTs) return false;
       const d = new Date(t.dueTs);
@@ -110,13 +110,58 @@ function getFilteredTasks() {
     }
     return true;
   });
+  if (dueDateSort === 'asc') {
+    filtered.sort((a, b) => {
+      if (!a.dueTs && !b.dueTs) return 0;
+      if (!a.dueTs) return 1;
+      if (!b.dueTs) return -1;
+      return a.dueTs - b.dueTs;
+    });
+  } else if (dueDateSort === 'desc') {
+    filtered.sort((a, b) => {
+      if (!a.dueTs && !b.dueTs) return 0;
+      if (!a.dueTs) return 1;
+      if (!b.dueTs) return -1;
+      return b.dueTs - a.dueTs;
+    });
+  }
+
+  return filtered;
 }
 
 function renderTaskList() {
-  const filtered = getFilteredTasks();
+  const all = getFilteredTasks();
+  const active = all.filter(t => !t.done);
+  const done = all.filter(t => t.done);
+
   taskList.innerHTML = '';
-  emptyState.style.display = filtered.length === 0 ? 'block' : 'none';
-  filtered.forEach(t => taskList.appendChild(buildTaskCard(t)));
+  emptyState.style.display = all.length === 0 ? 'block' : 'none';
+
+  // Render active tasks
+  active.forEach(t => taskList.appendChild(buildTaskCard(t)));
+
+  // Render completed archive
+  if (done.length > 0 && filter !== 'done') {
+    const archiveToggle = document.createElement('div');
+    archiveToggle.className = 'archive-toggle';
+    archiveToggle.innerHTML = `
+      <svg class="archive-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+        <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <span>${done.length} completed</span>
+    `;
+    taskList.appendChild(archiveToggle);
+
+    const archiveList = document.createElement('div');
+    archiveList.className = 'archive-list collapsed';
+    done.forEach(t => archiveList.appendChild(buildTaskCard(t)));
+    taskList.appendChild(archiveList);
+
+    archiveToggle.addEventListener('click', () => {
+      archiveList.classList.toggle('collapsed');
+      archiveToggle.querySelector('.archive-arrow').classList.toggle('open');
+    });
+  }
 }
 
 function buildTaskCard(t) {
@@ -148,10 +193,16 @@ function buildTaskCard(t) {
         <div class="task-title">${escHtml(t.title)}</div>
         ${t.notes ? `<div class="task-notes">${escHtml(t.notes)}</div>` : ''}
       </div>
-      <div class="task-actions">
-        <button data-action="edit" title="Edit">✎</button>
-        <button data-action="delete" class="task-del" title="Delete">🗑</button>
-      </div>
+        <div class="task-actions">
+          <button data-action="edit" title="Edit">✎</button>
+          <button data-action="duplicate" title="Duplicate">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+              <rect x="8" y="8" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button data-action="delete" class="task-del" title="Delete">🗑</button>
+        </div>
     </div>
     ${(t.label || t.dueTs || t.repeat) ? `
     <div class="task-meta">
@@ -184,8 +235,13 @@ function buildTaskCard(t) {
     const subIdx = e.target.closest('[data-sub]')?.dataset.sub;
     if (action === 'toggle') { toggleTask(t.id); return; }
     if (action === 'toggleSubs') { e.currentTarget.querySelector('.subtask-list')?.classList.toggle('collapsed'); e.currentTarget.querySelector('.subtask-arrow')?.classList.toggle('open'); return; }
-    if (action === 'edit') { openEditModal(t.id); return; }
-    if (action === 'delete') { deleteTask(t.id); return; }
+    if (action === 'duplicate') {
+      const copy = { ...t, id: uid(), done: false, title: t.title };
+      tasks.unshift(copy);
+      save(); renderAll();
+      toast('Task duplicated', 'info');
+      return;
+    } if (action === 'delete') { deleteTask(t.id); return; }
     if (subIdx !== undefined) { toggleSubtask(t.id, parseInt(subIdx)); }
   });
 
@@ -373,7 +429,25 @@ function attachGlobalListeners() {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') saveTask();
     if ((e.ctrlKey || e.metaKey) && e.key === 'n' && modalOverlay.classList.contains('hidden')) openAddModal();
   });
-
+  document.getElementById('btn-sort-due').addEventListener('click', () => {
+    const btn = document.getElementById('btn-sort-due');
+    if (dueDateSort === 'none') {
+      dueDateSort = 'asc';
+      btn.classList.add('active');
+      btn.title = 'Due Date: Earliest first';
+      btn.querySelector('.sort-label').textContent = 'Due ↑';
+    } else if (dueDateSort === 'asc') {
+      dueDateSort = 'desc';
+      btn.title = 'Due Date: Latest first';
+      btn.querySelector('.sort-label').textContent = 'Due ↓';
+    } else {
+      dueDateSort = 'none';
+      btn.classList.remove('active');
+      btn.title = 'Sort by Due Date';
+      btn.querySelector('.sort-label').textContent = 'Due Date';
+    }
+    renderAll();
+  });
   document.getElementById('btn-min').addEventListener('click', () => window.todoAPI.minimize());
   document.getElementById('btn-close').addEventListener('click', () => window.todoAPI.hide());
 

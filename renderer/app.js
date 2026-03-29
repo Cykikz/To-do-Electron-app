@@ -72,8 +72,7 @@ async function init() {
 
 async function save() { await window.todoAPI.saveTasks(tasks); }
 
-function renderAll() { renderStats(); renderTaskList(); }
-
+function renderAll() { renderStats(); renderTaskList(); updateFilterLabels(); }
 function renderStats() {
   const now = Date.now();
   const total = tasks.length;
@@ -83,6 +82,14 @@ function renderStats() {
   statDone.textContent = `${done} done`;
   statOverdue.textContent = overdue > 0 ? `${overdue} overdue` : '';
   statOverdue.style.display = overdue > 0 ? '' : 'none';
+}
+function updateFilterLabels() {
+  const now = Date.now();
+  const overdue = tasks.filter(t => !t.done && t.dueTs && t.dueTs < now).length;
+  const overdueBtn = document.querySelector('.filter-btn[data-filter="overdue"]');
+  if (overdueBtn) {
+    overdueBtn.textContent = overdue > 0 ? `Overdue (${overdue})` : 'Overdue';
+  }
 }
 
 function getFilteredTasks() {
@@ -94,7 +101,7 @@ function getFilteredTasks() {
       const d = new Date(t.dueTs);
       if (dateStr(d.getFullYear(), d.getMonth(), d.getDate()) !== todayStr) return false;
     }
-    if (filter === 'pending' && t.done) return false;
+    if (filter === 'overdue' && (t.done || !t.dueTs || t.dueTs >= Date.now())) return false;
     if (filter === 'done' && !t.done) return false;
     if (filter === 'daily' && !t.repeat) return false;
     if (recurringFilter !== 'all' && t.repeat !== recurringFilter) return false;

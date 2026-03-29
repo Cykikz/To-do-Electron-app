@@ -207,8 +207,8 @@ function buildTaskCard(t) {
           <button data-action="delete" class="task-del" title="Delete">🗑</button>
         </div>
     </div>
-    ${(t.label || t.dueTs || t.repeat) ? `
-    <div class="task-meta">
+${(t.category || t.dueTs || t.repeat) ? `    
+  <div class="task-meta">
       ${t.category ? `<span class="tag tag-label">${escHtml(t.category)}</span>` : ''}
       ${t.dueTs ? `<span class="tag tag-due ${dueCls}">${dueLabel}</span>` : ''}
       ${t.repeat ? `<span class="tag tag-daily">↻ ${t.repeat.charAt(0).toUpperCase() + t.repeat.slice(1)}</span>` : ''}
@@ -238,6 +238,7 @@ function buildTaskCard(t) {
     const subIdx = e.target.closest('[data-sub]')?.dataset.sub;
     if (action === 'toggle') { toggleTask(t.id); return; }
     if (action === 'toggleSubs') { e.currentTarget.querySelector('.subtask-list')?.classList.toggle('collapsed'); e.currentTarget.querySelector('.subtask-arrow')?.classList.toggle('open'); return; }
+    if (action === 'edit') { openEditModal(t.id); return; }
     if (action === 'duplicate') {
       const copy = { ...t, id: uid(), done: false, title: t.title };
       tasks.unshift(copy);
@@ -560,11 +561,14 @@ function loadCategories() {
   const btnCatCancel = document.getElementById('btn-cat-cancel');
   const btnAddCat = document.getElementById('btn-add-cat');
 
-  btnAddCat.addEventListener('click', () => {
-    catInputBar.classList.remove('hidden');
-    inpCat.value = '';
-    inpCat.focus();
-  });
+
+  if (btnAddCat) {
+    btnAddCat.addEventListener('click', () => {
+      catInputBar.classList.remove('hidden');
+      inpCat.value = '';
+      inpCat.focus();
+    });
+  }
 
   const saveCategory = () => {
     const name = inpCat.value.trim();

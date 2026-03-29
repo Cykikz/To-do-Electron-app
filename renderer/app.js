@@ -139,7 +139,10 @@ function renderTaskList() {
 
   // Render active tasks
   active.forEach(t => taskList.appendChild(buildTaskCard(t)));
-
+  if (filter === 'done') {
+    done.forEach(t => taskList.appendChild(buildTaskCard(t)));
+    return;
+  }
   // Render completed archive
   if (done.length > 0 && filter !== 'done') {
     const archiveToggle = document.createElement('div');

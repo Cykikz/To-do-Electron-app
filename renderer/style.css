@@ -2225,3 +2225,7 @@ input[type="range"]::-webkit-slider-thumb {
 .archive-list.collapsed {
   display: none;
 }
+
+.task-actions button svg {
+  pointer-events: none;
+}

@@ -2185,3 +2185,43 @@ input[type="range"]::-webkit-slider-thumb {
 #app.collapsed #shortcuts-panel {
   display: none !important;
 }
+
+/* ── Archive toggle ───────────────────────────────────────────────────────── */
+.archive-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+  font-size: 11px;
+  color: var(--text3);
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--transition);
+}
+
+.archive-toggle:hover {
+  color: var(--text2);
+}
+
+.archive-arrow {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.archive-arrow.open {
+  transform: rotate(0deg);
+}
+
+.archive-arrow:not(.open) {
+  transform: rotate(-90deg);
+}
+
+.archive-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.archive-list.collapsed {
+  display: none;
+}

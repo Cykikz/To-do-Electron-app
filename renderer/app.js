@@ -54,6 +54,7 @@ async function init() {
   attachGlobalListeners();
   initShortcutUI();
   applyShortcuts();
+  renderPresetGrid();
   // restore settings state
   const savedColor = localStorage.getItem('todofloat-accent') || '#7c6af7';
   applyAccentColor(savedColor);
@@ -783,6 +784,52 @@ function attachSearchListeners() {
   inp.addEventListener('input', () => { searchQuery = inp.value.trim(); clear.classList.toggle('hidden', !searchQuery); renderAll(); });
   clear.addEventListener('click', () => { inp.value = ''; searchQuery = ''; clear.classList.add('hidden'); inp.focus(); renderAll(); });
   document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); inp.focus(); inp.select(); } });
+}
+function applyThemePreset(id) {
+  const theme = THEMES[id];
+  if (!theme) return;
+  Object.entries(theme.vars).forEach(([key, val]) => {
+    document.documentElement.style.setProperty(key, val);
+  });
+  localStorage.setItem('todofloat-preset', id);
+
+  // Update active state
+  document.querySelectorAll('.preset-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.preset === id)
+  );
+
+  // If designer preset switch to light data-theme, else dark
+  if (id === 'designer') {
+    document.documentElement.setAttribute('data-theme', 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+}
+
+function renderPresetGrid() {
+  const grid = document.getElementById('preset-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  Object.entries(THEMES).forEach(([id, theme]) => {
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.dataset.preset = id;
+    btn.title = theme.label;
+    btn.innerHTML = `
+      <div class="preset-preview">
+        <div class="preset-swatch" style="background:${theme.preview[0]}"></div>
+        <div class="preset-swatch" style="background:${theme.preview[1]}"></div>
+        <div class="preset-swatch" style="background:${theme.preview[2]}"></div>
+      </div>
+      <span class="preset-label">${theme.label}</span>
+    `;
+    btn.addEventListener('click', () => applyThemePreset(id));
+    grid.appendChild(btn);
+  });
+
+  // Restore saved preset
+  const saved = localStorage.getItem('todofloat-preset') || 'default';
+  applyThemePreset(saved);
 }
 function applyAccentColor(hex) {
   const r = parseInt(hex.slice(1, 3), 16);

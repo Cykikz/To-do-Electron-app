@@ -17,6 +17,8 @@
   "build": {
     "appId": "com.todo.sidebar",
     "productName": "TodoFloat",
+    "compression": "maximum",
+    "asar": true,
     "win": {
       "target": [
         {

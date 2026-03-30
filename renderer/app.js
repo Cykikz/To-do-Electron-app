@@ -614,9 +614,14 @@ function attachFilterDropdown() {
   });
 
   // Close all on outside click
-  document.addEventListener('click', () => {
+  document.addEventListener('click', e => {
     ['category', 'priority', 'recurring'].forEach(t => {
-      document.getElementById(`dd-${t}`)?.classList.add('hidden');
+      const dd = document.getElementById(`dd-${t}`);
+      const chip = document.getElementById(`chip-${t}`);
+      if (!dd) return;
+      if (dd.contains(e.target)) return;
+      if (chip?.contains(e.target)) return;
+      dd.classList.add('hidden');
     });
   });
 

@@ -62,7 +62,8 @@ async function init() {
     s.classList.toggle('active', s.dataset.color === savedColor)
   );
   const savedTheme = localStorage.getItem('todofloat-theme') || 'dark';
-  applyTheme(savedTheme);
+  const savedPreset = localStorage.getItem('todofloat-preset');
+  if (!savedPreset) applyTheme(savedTheme);
   document.querySelectorAll('.theme-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.theme === savedTheme)
   );

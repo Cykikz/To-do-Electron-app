@@ -54,7 +54,6 @@ async function init() {
   attachGlobalListeners();
   initShortcutUI();
   applyShortcuts();
-  renderPresetGrid();
   // restore settings state
   const savedColor = localStorage.getItem('todofloat-accent') || '#7c6af7';
   applyAccentColor(savedColor);
@@ -69,6 +68,7 @@ async function init() {
   );
   document.getElementById('toggle-startup').classList.toggle('on', settings.openAtLogin);
   document.getElementById('toggle-alwaysontop').classList.toggle('on', settings.alwaysOnTop);
+  renderPresetGrid(); // must run last so preset overrides everything
   loadCategories();
 }
 

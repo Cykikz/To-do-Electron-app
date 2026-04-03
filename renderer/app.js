@@ -69,6 +69,11 @@ async function init() {
   document.getElementById('toggle-startup').classList.toggle('on', settings.openAtLogin);
   document.getElementById('toggle-alwaysontop').classList.toggle('on', settings.alwaysOnTop);
   renderPresetGrid(); // must run last so preset overrides everything
+  const activePreset = localStorage.getItem('todofloat-preset') || 'default';
+  const themeSwitchSection = document.getElementById('theme-switch-section');
+  if (themeSwitchSection) {
+    themeSwitchSection.style.display = activePreset === 'default' ? '' : 'none';
+  }
   loadCategories();
 }
 
@@ -507,11 +512,6 @@ function attachGlobalListeners() {
   document.getElementById('theme-options').addEventListener('click', e => {
     const btn = e.target.closest('.theme-btn');
     if (!btn) return;
-    const activePreset = localStorage.getItem('todofloat-preset') || 'default';
-    if (activePreset !== 'default') {
-      toast('Theme switch only works with Default preset', 'info');
-      return;
-    }
     const theme = btn.dataset.theme;
     document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -811,8 +811,12 @@ function applyThemePreset(id) {
   document.querySelectorAll('.preset-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.preset === id)
   );
+  // Show theme switch only for default preset
+  const themeSwitchSection = document.getElementById('theme-switch-section');
+  if (themeSwitchSection) {
+    themeSwitchSection.style.display = id === 'default' ? '' : 'none';
+  }
 }
-
 function renderPresetGrid() {
   const grid = document.getElementById('preset-grid');
   if (!grid) return;
@@ -1106,4 +1110,4 @@ function initShortcutUI() {
   });
 }
 attachSearchListeners();
-init();
+init(); 

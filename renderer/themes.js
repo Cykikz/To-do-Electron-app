@@ -1,13 +1,14 @@
 // ── TodoFloat Theme Presets ──────────────────────────────────────────────────
-// Every theme defines ALL CSS variables completely.
-// No theme relies on any external CSS block — fully self-contained.
+// Every theme defines ALL CSS variables completely — fully self-contained.
+// glitch: true enables cyberpunk glitch effects via a CSS class on <html>
 
 const THEMES = {
 
-    // ── Default — deep space purple ─────────────────────────────────────────
+    // ── Default Dark ─────────────────────────────────────────────────────────
     default: {
         label: 'Default',
         preview: ['#0f0f12', '#7c6af7', '#1e1e27'],
+        glitch: false,
         vars: {
             '--bg': '#0f0f12',
             '--bg2': '#17171d',
@@ -37,10 +38,11 @@ const THEMES = {
         }
     },
 
-    // ── Designer — warm cream light theme ───────────────────────────────────
+    // ── Designer — warm cream light ──────────────────────────────────────────
     designer: {
         label: 'Designer',
         preview: ['#fdf8f4', '#f4623a', '#f0e6d8'],
+        glitch: false,
         vars: {
             '--bg': '#fdf8f4',
             '--bg2': '#ffffff',
@@ -74,6 +76,7 @@ const THEMES = {
     coder: {
         label: 'Coder',
         preview: ['#080808', '#00e676', '#111111'],
+        glitch: false,
         vars: {
             '--bg': '#080808',
             '--bg2': '#0e0e0e',
@@ -103,10 +106,11 @@ const THEMES = {
         }
     },
 
-    // ── Cyberpunk — near-black purple, neon yellow ───────────────────────────
+    // ── Cyberpunk — near-black purple, neon yellow, glitch effects ───────────
     cyberpunk: {
         label: 'Cyberpunk',
         preview: ['#08040f', '#ffe600', '#1a0030'],
+        glitch: true,
         vars: {
             '--bg': '#08040f',
             '--bg2': '#0e0818',

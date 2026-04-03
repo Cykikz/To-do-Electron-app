@@ -507,6 +507,11 @@ function attachGlobalListeners() {
   document.getElementById('theme-options').addEventListener('click', e => {
     const btn = e.target.closest('.theme-btn');
     if (!btn) return;
+    const activePreset = localStorage.getItem('todofloat-preset') || 'default';
+    if (activePreset !== 'default') {
+      toast('Theme switch only works with Default preset', 'info');
+      return;
+    }
     const theme = btn.dataset.theme;
     document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -789,14 +794,19 @@ function attachSearchListeners() {
 function applyThemePreset(id) {
   const theme = THEMES[id];
   if (!theme) return;
-  // Clear all previously set vars first
+  // Clear all previously set inline vars
   document.documentElement.removeAttribute('style');
-  // Apply all theme vars as inline styles
+  // Apply all theme vars
   Object.entries(theme.vars).forEach(([key, val]) => {
     document.documentElement.style.setProperty(key, val);
   });
   // Remove data-theme so no CSS block interferes
   document.documentElement.removeAttribute('data-theme');
+  // Glitch effects
+  document.documentElement.classList.toggle('glitch', !!theme.glitch);
+  // App title needs data-text for glitch text effect
+  const titleEl = document.getElementById('app-title');
+  if (titleEl) titleEl.setAttribute('data-text', titleEl.textContent);
   localStorage.setItem('todofloat-preset', id);
   document.querySelectorAll('.preset-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.preset === id)
@@ -838,18 +848,62 @@ function applyAccentColor(hex) {
   document.documentElement.style.setProperty('--accent2', lighter);
   document.documentElement.style.setProperty('--accent-glow', glow);
 }
+const LIGHT_VARS = {
+  '--bg': '#f4f4f8',
+  '--bg2': '#ffffff',
+  '--bg3': '#eeeef5',
+  '--surface': '#ffffff',
+  '--surface2': '#e8e8f2',
+  '--border': '#d8d8e8',
+  '--text': '#1a1a2e',
+  '--text2': '#5a5a7a',
+  '--text3': '#9090aa',
+  '--shadow': '0 8px 40px rgba(0,0,0,.12)',
+  '--body-bg': '#f4f4f8',
+  '--input-bg': '#ffffff',
+  '--modal-bg': '#ffffff',
+  '--dropdown-bg': '#ffffff',
+  '--settings-bg': '#ffffff',
+  '--toggle-off': '#d8d8e8',
+};
+
+const DARK_VARS = {
+  '--bg': '#0f0f12',
+  '--bg2': '#17171d',
+  '--bg3': '#1e1e27',
+  '--surface': '#1a1a22',
+  '--surface2': '#222230',
+  '--border': '#2e2e3e',
+  '--text': '#e8e8f0',
+  '--text2': '#9090a8',
+  '--text3': '#5a5a72',
+  '--shadow': '0 8px 40px rgba(0,0,0,.6)',
+  '--body-bg': '#17171d',
+  '--input-bg': '#1e1e27',
+  '--modal-bg': '#17171d',
+  '--dropdown-bg': '#17171d',
+  '--settings-bg': '#17171d',
+  '--toggle-off': '#1e1e27',
+};
+
 function applyTheme(theme) {
   let resolved = theme;
   if (theme === 'system') {
     resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    // watch for system changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-      if (localStorage.getItem('todofloat-theme') === 'system') {
-        applyTheme('system');
-      }
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (localStorage.getItem('todofloat-theme') === 'system') applyTheme('system');
     });
   }
-  document.documentElement.setAttribute('data-theme', resolved);
+  // Apply vars directly — no CSS block needed
+  document.documentElement.removeAttribute('style');
+  const vars = resolved === 'light' ? LIGHT_VARS : DARK_VARS;
+  Object.entries(vars).forEach(([key, val]) => {
+    document.documentElement.style.setProperty(key, val);
+  });
+  // Keep accent color
+  const savedColor = localStorage.getItem('todofloat-accent') || '#7c6af7';
+  applyAccentColor(savedColor);
+  document.documentElement.removeAttribute('data-theme');
 }
 
 // ── Keyboard Shortcuts System ─────────────────────────────────────────────

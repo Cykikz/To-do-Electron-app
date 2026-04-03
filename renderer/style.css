@@ -1984,58 +1984,32 @@ input[type="range"]::-webkit-slider-thumb {
   display: none !important;
 }
 
-/* ── Light theme ──────────────────────────────────────────────────────────── */
-[data-theme="light"] {
-  --bg: #f4f4f8;
-  --bg2: #ffffff;
-  --bg3: #eeeef5;
-  --surface: #ffffff;
-  --surface2: #e8e8f2;
-  --border: #d8d8e8;
-  --text: #1a1a2e;
-  --text2: #5a5a7a;
-  --text3: #9090aa;
-  --shadow: 0 8px 40px rgba(0, 0, 0, .12);
+/* ── Theme-aware overrides ────────────────────────────────────────────────── */
+html,
+body {
+  background: var(--body-bg, var(--bg2));
 }
 
-[data-theme="light"] body {
-  background: #f4f4f8;
+#modal {
+  background: var(--modal-bg, var(--bg2));
 }
 
-[data-theme="light"] #app {
-  background: #f4f4f8;
+.chip-dropdown {
+  background: var(--dropdown-bg, var(--bg2));
 }
 
-[data-theme="light"] .task-card {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+#settings-panel,
+#shortcuts-panel {
+  background: var(--settings-bg, var(--bg2));
 }
 
-[data-theme="light"] input[type="text"],
-[data-theme="light"] textarea {
-  background: #ffffff;
+.toggle-wrap {
+  background: var(--toggle-off, var(--bg3));
 }
 
-[data-theme="light"] #modal {
-  background: #ffffff;
-}
-
-[data-theme="light"] .chip-dropdown {
-  background: #ffffff;
-}
-
-[data-theme="light"] #settings-panel {
-  background: #ffffff;
-}
-
-[data-theme="light"] .toggle-wrap {
-  background: #d8d8e8;
-}
-
-/* smooth theme transition */
-*,
-*::before,
-*::after {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+input[type="text"],
+textarea {
+  background: var(--input-bg, var(--bg3));
 }
 
 /* ── Theme buttons ────────────────────────────────────────────────────────── */

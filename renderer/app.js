@@ -789,22 +789,18 @@ function attachSearchListeners() {
 function applyThemePreset(id) {
   const theme = THEMES[id];
   if (!theme) return;
+  // Clear all previously set vars first
+  document.documentElement.removeAttribute('style');
+  // Apply all theme vars as inline styles
   Object.entries(theme.vars).forEach(([key, val]) => {
     document.documentElement.style.setProperty(key, val);
   });
+  // Remove data-theme so no CSS block interferes
+  document.documentElement.removeAttribute('data-theme');
   localStorage.setItem('todofloat-preset', id);
-
-  // Update active state
   document.querySelectorAll('.preset-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.preset === id)
   );
-
-  // If designer preset switch to light data-theme, else dark
-  if (id === 'designer') {
-    document.documentElement.setAttribute('data-theme', 'light');
-  } else {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }
 }
 
 function renderPresetGrid() {

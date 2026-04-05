@@ -19,6 +19,7 @@
     "productName": "TodoFloat",
     "compression": "maximum",
     "asar": true,
+    "extraFiles": [],
     "win": {
       "target": [
         {
@@ -29,6 +30,9 @@
         }
       ]
     },
+    "electronLanguages": [
+      "en-US"
+    ],
     "files": [
       "main.js",
       "preload.js",

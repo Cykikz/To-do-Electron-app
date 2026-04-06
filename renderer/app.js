@@ -532,6 +532,7 @@ function attachGlobalListeners() {
       renderAll();
     });
   });
+
   // Priority filter handled by filter dropdown
   document.querySelectorAll('.prio-opt').forEach(b => {
     b.addEventListener('click', () => {
@@ -547,6 +548,28 @@ function attachGlobalListeners() {
   document.getElementById('btn-add-subtask').addEventListener('click', addDraftSubtask);
   inpSubtask.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addDraftSubtask(); } });
   inpTitle.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inpNotes.focus(); } });
+  //Export
+  document.getElementById('btn-export').addEventListener('click', () => {
+    if (!tasks.length) { toast('No tasks to export', 'info'); return; }
+    const lines = tasks.map(t => {
+      let md = `- [${t.done ? 'x' : ' '}] **${t.title}**`;
+      if (t.priority) md += ` [${t.priority}]`;
+      if (t.dueTs) md += ` — due ${formatDue(t.dueTs)}`;
+      if (t.category) md += ` #${t.category}`;
+      if (t.repeat) md += ` ↻${t.repeat}`;
+      if (t.notes) md += `\n  > ${t.notes}`;
+      if (t.subtasks?.length) {
+        t.subtasks.forEach(s => {
+          md += `\n  - [${s.done ? 'x' : ' '}] ${s.text}`;
+        });
+      }
+      return md;
+    });
+    const md = `# TodoFloat Tasks\n_Exported ${new Date().toLocaleDateString()}_\n\n${lines.join('\n')}`;
+    navigator.clipboard.writeText(md).then(() => {
+      toast('Copied to clipboard ✓', 'success');
+    });
+  });
 }
 
 function populateCategorySelect(selected = '') {

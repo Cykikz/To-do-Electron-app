@@ -549,7 +549,7 @@ function attachGlobalListeners() {
   inpSubtask.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addDraftSubtask(); } });
   inpTitle.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inpNotes.focus(); } });
   //Export
-  document.getElementById('btn-export').addEventListener('click', () => {
+  document.getElementById('btn-export-md').addEventListener('click', () => {
     if (!tasks.length) { toast('No tasks to export', 'info'); return; }
     const lines = tasks.map(t => {
       let md = `- [${t.done ? 'x' : ' '}] **${t.title}**`;
@@ -566,9 +566,26 @@ function attachGlobalListeners() {
       return md;
     });
     const md = `# TodoFloat Tasks\n_Exported ${new Date().toLocaleDateString()}_\n\n${lines.join('\n')}`;
-    navigator.clipboard.writeText(md).then(() => {
-      toast('Copied to clipboard ✓', 'success');
+    navigator.clipboard.writeText(md).then(() => toast('Markdown copied ✓', 'success'));
+  });
+
+  document.getElementById('btn-export-csv').addEventListener('click', () => {
+    if (!tasks.length) { toast('No tasks to export', 'info'); return; }
+    const headers = 'Title,Done,Priority,Category,Due,Repeat,Notes,Subtasks';
+    const rows = tasks.map(t => {
+      const due = t.dueTs ? formatDue(t.dueTs) : '';
+      const notes = (t.notes || '').replace(/"/g, '""');
+      const subs = (t.subtasks || []).map(s => s.text).join(' | ').replace(/"/g, '""');
+      return `"${t.title}","${t.done}","${t.priority}","${t.category || ''}","${due}","${t.repeat || ''}","${notes}","${subs}"`;
     });
+    const csv = [headers, ...rows].join('\n');
+    navigator.clipboard.writeText(csv).then(() => toast('CSV copied ✓', 'success'));
+  });
+
+  document.getElementById('btn-export-json').addEventListener('click', () => {
+    if (!tasks.length) { toast('No tasks to export', 'info'); return; }
+    const json = JSON.stringify(tasks, null, 2);
+    navigator.clipboard.writeText(json).then(() => toast('JSON copied ✓', 'success'));
   });
 }
 

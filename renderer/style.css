@@ -1827,7 +1827,10 @@ input[type="range"]::-webkit-slider-thumb {
   border-bottom: 1px solid var(--border);
   z-index: 400;
   animation: slideDown .18s ease;
-  overflow: hidden;
+  overflow-y: auto;
+  max-height: calc(100vh - 46px);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
 
 @keyframes slideDown {

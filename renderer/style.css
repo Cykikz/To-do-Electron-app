@@ -1820,10 +1820,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* ── Settings Panel ───────────────────────────────────────────────────────── */
 #settings-panel {
-  position: absolute;
-  top: 46px;
-  left: 0;
-  right: 0;
+  position: relative;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   z-index: 400;
@@ -1832,6 +1829,7 @@ input[type="range"]::-webkit-slider-thumb {
   max-height: calc(100vh - 46px);
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
+  flex-shrink: 0;
 }
 
 @keyframes slideDown {
@@ -2050,15 +2048,12 @@ textarea {
 
 /* ── Shortcuts Panel ──────────────────────────────────────────────────────── */
 #shortcuts-panel {
-  position: absolute;
-  top: 46px;
-  left: 0;
-  right: 0;
+  position: relative;
+  max-height: calc(100vh - 46px);
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   z-index: 400;
   animation: slideDown .18s ease;
-  max-height: calc(100vh - 46px);
   overflow-y: auto;
 }
 

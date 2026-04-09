@@ -19,20 +19,32 @@
     "productName": "TodoFloat",
     "compression": "maximum",
     "asar": true,
-    "extraFiles": [],
+    "electronLanguages": [
+      "en-US"
+    ],
     "win": {
+      "icon": "assets/icon.ico",
       "target": [
         {
-          "target": "portable",
+          "target": "nsis",
           "arch": [
             "x64"
           ]
         }
       ]
     },
-    "electronLanguages": [
-      "en-US"
-    ],
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "TodoFloat",
+      "runAfterFinish": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "artifactName": "TodoFloat-Setup.exe"
+    },
     "files": [
       "main.js",
       "preload.js",
@@ -54,9 +66,6 @@
       "node_modules/path-exists/**/*",
       "node_modules/is-obj/**/*",
       "node_modules/type-fest/**/*"
-    ],
-    "portable": {
-      "artifactName": "TodoFloat.exe"
-    }
+    ]
   }
 }

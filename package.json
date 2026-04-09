@@ -17,6 +17,7 @@
   "build": {
     "appId": "com.todo.sidebar",
     "productName": "TodoFloat",
+    "icon": "assets/icon.ico",
     "compression": "maximum",
     "asar": true,
     "electronLanguages": [

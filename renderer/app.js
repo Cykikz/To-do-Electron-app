@@ -441,7 +441,14 @@ function attachGlobalListeners() {
   btnCancel.addEventListener('click', closeModal);
   document.getElementById('modal-close').addEventListener('click', closeModal);
   modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
-
+  document.getElementById('btn-github').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.todoAPI.openExternal('https://github.com/Cykikz');
+  });
+  document.getElementById('btn-star').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.todoAPI.openExternal('https://github.com/Cykikz/To-do-Electron-app.git');
+  });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeModal();
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') saveTask();

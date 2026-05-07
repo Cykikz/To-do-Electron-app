@@ -311,3 +311,8 @@ ipcMain.on('shortcut:setGlobal', (_, accelerator) => {
 ipcMain.handle('shortcut:getGlobal', () => {
   return store.get('globalShortcut', 'CommandOrControl+Shift+T');
 });
+
+const { shell } = require('electron');
+ipcMain.on('window:openExternal', (_, url) => {
+  shell.openExternal(url);
+});

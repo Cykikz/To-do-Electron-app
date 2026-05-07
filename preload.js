@@ -21,4 +21,6 @@ contextBridge.exposeInMainWorld('todoAPI', {
   // Shortcuts
   registerGlobalShortcut: (accelerator) => ipcRenderer.send('shortcut:setGlobal', accelerator),
   getGlobalShortcut: () => ipcRenderer.invoke('shortcut:getGlobal'),
+  // Link
+  openExternal: (url) => ipcRenderer.send('window:openExternal', url),
 });

@@ -2,6 +2,10 @@
   "name": "todo-sidebar",
   "version": "1.0.0",
   "description": "Floating To-Do Widget for Windows",
+  "author": {
+    "name": "Cykikz",
+    "email": "cykikz@users.noreply.github.com"
+  },
   "main": "main.js",
   "scripts": {
     "start": "electron .",

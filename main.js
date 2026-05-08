@@ -1,10 +1,19 @@
-const { app, BrowserWindow, ipcMain, Tray, Menu, screen, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, Tray, Menu, screen, nativeImage, shell, globalShortcut, Notification } = require('electron');
 const path = require('path');
+const os = require('os');
+const fs = require('fs');
 const Store = require('electron-store');
 
 const store = new Store();
 let mainWindow;
 let tray;
+
+// ── Platform-aware icon ───────────────────────────────────────────────────
+function getIcon() {
+  if (process.platform === 'darwin') return path.join(__dirname, 'assets', 'icon.icns');
+  if (process.platform === 'linux') return path.join(__dirname, 'assets', 'icon.png');
+  return path.join(__dirname, 'assets', 'icon.ico');
+}
 
 function getSavedBounds() {
   const display = screen.getPrimaryDisplay().workAreaSize;
@@ -34,7 +43,7 @@ function createWindow() {
     movable: true,
     alwaysOnTop: store.get('alwaysOnTop', true),
     skipTaskbar: false,
-    icon: path.join(__dirname, 'assets', 'icon.ico'),
+    icon: getIcon(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -57,16 +66,23 @@ function createWindow() {
   mainWindow.on('move', () => {
     store.set('windowBounds', mainWindow.getBounds());
   });
-
   mainWindow.on('closed', () => { mainWindow = null; });
 }
 
 function createTray() {
-  const icon = nativeImage.createFromPath(path.join(__dirname, 'assets', 'icon.png'));
+  const iconPath = process.platform === 'linux'
+    ? path.join(__dirname, 'assets', 'icon.png')
+    : path.join(__dirname, 'assets', process.platform === 'darwin' ? 'icon.png' : 'icon.png');
+
+  const icon = nativeImage.createFromPath(iconPath);
   const trayIcon = icon.resize({ width: 16, height: 16 });
 
   tray = new Tray(trayIcon);
   tray.setToolTip('TodoFloat');
+
+  const startupLabel = process.platform === 'darwin' ? 'Start with macOS' :
+    process.platform === 'linux' ? 'Start with Linux' :
+      'Start with Windows';
 
   const buildMenu = () => Menu.buildFromTemplate([
     {
@@ -88,11 +104,11 @@ function createTray() {
     },
     { type: 'separator' },
     {
-      label: 'Start with Windows',
+      label: startupLabel,
       type: 'checkbox',
-      checked: app.getLoginItemSettings().openAtLogin,
+      checked: getStartupEnabled(),
       click: (item) => {
-        app.setLoginItemSettings({ openAtLogin: item.checked });
+        setStartup(item.checked);
         tray.setContextMenu(buildMenu());
       }
     },
@@ -107,33 +123,72 @@ function createTray() {
   });
 }
 
+// ── Cross-platform startup ────────────────────────────────────────────────
+function getStartupEnabled() {
+  if (process.platform === 'linux') {
+    const desktopFile = path.join(os.homedir(), '.config', 'autostart', 'todofloat.desktop');
+    return fs.existsSync(desktopFile);
+  }
+  return app.getLoginItemSettings().openAtLogin;
+}
+
+function setStartup(val) {
+  if (process.platform === 'linux') {
+    const autostartDir = path.join(os.homedir(), '.config', 'autostart');
+    const desktopFile = path.join(autostartDir, 'todofloat.desktop');
+    if (val) {
+      const content = [
+        '[Desktop Entry]',
+        'Type=Application',
+        'Name=TodoFloat',
+        `Exec=${process.execPath}`,
+        'Hidden=false',
+        'NoDisplay=false',
+        'X-GNOME-Autostart-enabled=true'
+      ].join('\n') + '\n';
+      try {
+        fs.mkdirSync(autostartDir, { recursive: true });
+        fs.writeFileSync(desktopFile, content);
+      } catch (e) { console.log('Autostart write error:', e); }
+    } else {
+      try { fs.unlinkSync(desktopFile); } catch (e) { }
+    }
+    return;
+  }
+  app.setLoginItemSettings({ openAtLogin: val });
+}
+
+// ── App ready ─────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
+  // Windows notification app ID
+  if (process.platform === 'win32') {
+    app.setAppUserModelId('com.todo.sidebar');
+  }
   createWindow();
   createTray();
+  setTimeout(checkDueNotifications, 5000);
+  const saved = store.get('globalShortcut', 'CommandOrControl+Shift+T');
+  registerShowShortcut(saved);
 });
 
 app.on('window-all-closed', (e) => { e.preventDefault(); });
 app.on('activate', () => { if (!mainWindow) createWindow(); });
+app.on('will-quit', () => globalShortcut.unregisterAll());
 
-// Tasks
+// ── Tasks ─────────────────────────────────────────────────────────────────
 ipcMain.handle('tasks:load', () => store.get('tasks', []));
 ipcMain.handle('tasks:save', (_, tasks) => { store.set('tasks', tasks); return true; });
 
-// Window
+// ── Window ────────────────────────────────────────────────────────────────
 ipcMain.on('window:minimize', () => mainWindow && mainWindow.minimize());
 ipcMain.on('window:hide', () => mainWindow && mainWindow.hide());
 ipcMain.on('window:close', () => app.quit());
 
-// Pin — original (kept as-is)
 ipcMain.on('window:togglePin', (_, val) => {
   store.set('alwaysOnTop', val);
   if (mainWindow) mainWindow.setAlwaysOnTop(val);
 });
 
-// Pin — 3 states (NEW)
-// state 0 = normal        (alwaysOnTop OFF, movable ON)
-// state 1 = pinned        (alwaysOnTop ON,  movable ON)
-// state 2 = locked        (alwaysOnTop ON,  movable OFF)
 ipcMain.on('window:setPinState', (_, state) => {
   store.set('pinState', state);
   if (!mainWindow) return;
@@ -152,12 +207,10 @@ ipcMain.on('window:setPinState', (_, state) => {
   }
 });
 
-// Movable — original (kept as-is)
 ipcMain.on('window:setMovable', (_, val) => {
   if (mainWindow) mainWindow.setMovable(val);
 });
 
-// Collapse — original (kept as-is)
 ipcMain.on('window:setCollapsed', (_, collapsed) => {
   if (!mainWindow) return;
   store.set('collapsed', collapsed);
@@ -177,20 +230,23 @@ ipcMain.on('window:setCollapsed', (_, collapsed) => {
   }
 });
 
-// Settings
+ipcMain.on('window:openExternal', (_, url) => {
+  shell.openExternal(url);
+});
+
+// ── Settings ──────────────────────────────────────────────────────────────
 ipcMain.handle('settings:get', () => ({
   alwaysOnTop: store.get('alwaysOnTop', true),
   pinState: store.get('pinState', 1),
-  openAtLogin: app.getLoginItemSettings().openAtLogin,
+  openAtLogin: getStartupEnabled(),
   collapsed: store.get('collapsed', false)
 }));
 
 ipcMain.on('settings:setStartup', (_, val) => {
-  app.setLoginItemSettings({ openAtLogin: val });
+  setStartup(val);
 });
 
 // ── Notifications ─────────────────────────────────────────────────────────
-const { Notification } = require('electron');
 const notifiedIds = new Set();
 
 function fireNotif(title, body, taskId, type) {
@@ -209,7 +265,6 @@ function checkDueNotifications() {
   const now = new Date();
   const nowTs = now.getTime();
 
-  // ── Daily 9 AM summary ──────────────────────────────────────────────────
   const todayKey = `daily-summary-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
   if (now.getHours() >= 9 && !notifiedIds.has(todayKey)) {
     const dueToday = tasks.filter(t => {
@@ -226,9 +281,7 @@ function checkDueNotifications() {
         body: `You have ${dueToday.length} task${dueToday.length > 1 ? 's' : ''} due today`,
         silent: false
       });
-      n.on('click', () => {
-        if (mainWindow) { mainWindow.show(); mainWindow.focus(); }
-      });
+      n.on('click', () => { if (mainWindow) { mainWindow.show(); mainWindow.focus(); } });
       n.show();
     }
   }
@@ -240,45 +293,25 @@ function checkDueNotifications() {
       && dueDate.getMonth() === now.getMonth()
       && dueDate.getDate() === now.getDate();
 
-    // ── 12 AM reminder — fires after midnight if task is due today ─────────
     if (isToday && now.getHours() >= 0) {
-      fireNotif(
-        'TodoFloat — Due Today',
-        `"${t.title}" is due today`,
-        t.id, 'midnight'
-      );
+      fireNotif('TodoFloat — Due Today', `"${t.title}" is due today`, t.id, 'midnight');
     }
 
-    // ── 4 hour advance warning ─────────────────────────────────────────────
     const fourHoursBefore = t.dueTs - (4 * 60 * 60 * 1000);
     if (nowTs >= fourHoursBefore && nowTs < t.dueTs) {
       const minsLeft = Math.round((t.dueTs - nowTs) / 60000);
-      fireNotif(
-        'TodoFloat — Due Soon',
-        `"${t.title}" is due in ${minsLeft} mins`,
-        t.id, '4hr'
-      );
+      fireNotif('TodoFloat — Due Soon', `"${t.title}" is due in ${minsLeft} mins`, t.id, '4hr');
     }
 
-    // ── At due time ────────────────────────────────────────────────────────
     if (nowTs >= t.dueTs && nowTs < t.dueTs + 60000) {
-      fireNotif(
-        'TodoFloat — Task Due Now',
-        `"${t.title}" is due now`,
-        t.id, 'due'
-      );
+      fireNotif('TodoFloat — Task Due Now', `"${t.title}" is due now`, t.id, 'due');
     }
   });
 }
 
 setInterval(checkDueNotifications, 30 * 1000);
-app.whenReady().then(() => {
-  setTimeout(checkDueNotifications, 5000);
-});
 
 // ── Global Shortcut ───────────────────────────────────────────────────────
-const { globalShortcut } = require('electron');
-
 function registerShowShortcut(accelerator) {
   globalShortcut.unregisterAll();
   try {
@@ -296,13 +329,6 @@ function registerShowShortcut(accelerator) {
   }
 }
 
-app.whenReady().then(() => {
-  const saved = store.get('globalShortcut', 'CommandOrControl+Shift+T');
-  registerShowShortcut(saved);
-});
-
-app.on('will-quit', () => globalShortcut.unregisterAll());
-
 ipcMain.on('shortcut:setGlobal', (_, accelerator) => {
   store.set('globalShortcut', accelerator);
   registerShowShortcut(accelerator);
@@ -310,9 +336,4 @@ ipcMain.on('shortcut:setGlobal', (_, accelerator) => {
 
 ipcMain.handle('shortcut:getGlobal', () => {
   return store.get('globalShortcut', 'CommandOrControl+Shift+T');
-});
-
-const { shell } = require('electron');
-ipcMain.on('window:openExternal', (_, url) => {
-  shell.openExternal(url);
 });

@@ -66,7 +66,8 @@
             "ia32"
           ]
         }
-      ]
+      ],
+      "artifactName": "TodoFloat-Windows-${arch}.${ext}"
     },
     "mac": {
       "icon": "assets/icon.icns",
@@ -79,7 +80,8 @@
           ]
         }
       ],
-      "category": "public.app-category.productivity"
+      "category": "public.app-category.productivity",
+      "artifactName": "TodoFloat-macOS-${arch}.${ext}"
     },
     "linux": {
       "icon": "assets/icon.png",
@@ -97,7 +99,8 @@
           ]
         }
       ],
-      "category": "Utility"
+      "category": "Utility",
+      "artifactName": "TodoFloat-Linux-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -109,7 +112,7 @@
       "installerIcon": "assets/icon.ico",
       "uninstallerIcon": "assets/icon.ico",
       "installerHeaderIcon": "assets/icon.ico",
-      "artifactName": "TodoFloat-Setup-${arch}.exe"
+      "artifactName": "TodoFloat-Windows-Setup-${arch}.exe"
     }
   }
 }

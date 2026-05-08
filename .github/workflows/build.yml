@@ -110,10 +110,13 @@ jobs:
             ### Downloads
             | Platform | File |
             |---|---|
-            | Windows (64-bit) | `TodoFloat-Setup-x64.exe` |
-            | Windows (32-bit) | `TodoFloat-Setup-ia32.exe` |
-            | macOS | `TodoFloat.dmg` |
-            | Linux | `TodoFloat.AppImage` |
+            | 🪟 Windows (64-bit) Installer | `TodoFloat-Windows-Setup-x64.exe` |
+            | 🪟 Windows (64-bit) Portable | `TodoFloat-Windows-x64.exe` |
+            | 🪟 Windows (32-bit) Installer | `TodoFloat-Windows-Setup-ia32.exe` |
+            | 🍎 macOS (Apple Silicon) | `TodoFloat-macOS-arm64.dmg` |
+            | 🍎 macOS (Intel) | `TodoFloat-macOS-x64.dmg` |
+            | 🐧 Linux (AppImage) | `TodoFloat-Linux-x64.AppImage` |
+            | 🐧 Linux (Debian/Ubuntu) | `TodoFloat-Linux-x64.deb` |
 
             ### What's new
             <!-- Add changelog here -->

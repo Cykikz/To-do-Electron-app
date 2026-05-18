@@ -1,0 +1,73 @@
+[33m4ead569[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m rmv: pvt gile:
+[33m375418d[m[33m ([m[1;33mtag: [m[1;33mv1.0.1[m[33m)[m feat: platform names in release filenames
+[33md3a5135[m fix: add author email for Linux deb package
+[33m1c31637[m fix: disable auto-publish + drop Linux ia32
+[33m72f3b63[m fix: add package-lock.json + upgrade to Node 22
+[33m694ed76[m fix: flatten release artifacts + cross-platform build script
+[33mcaa231d[m[33m ([m[1;33mtag: [m[1;33mv1.0.0[m[33m)[m release: v1.0.0
+[33m65bdc53[m create : build.yml in .github for releases
+[33mb0fa538[m add : support me link and star repo link
+[33m2a100a0[m Add : support for windows , mac and linux
+[33m639749b[m future plan
+[33md21eb59[m add : package.json settings for windows 10 and above added 32ia arch
+[33me2a3ec4[m updated package.json for icon
+[33mf451f3a[m updated package.json
+[33mcdff203[m added smooth transitions , fixed minor bugs regarding fab and settings panel
+[33m0e0762d[m export tasks with three formats
+[33m03fc298[m export tasks
+[33m5ca0088[m settings page scrollable if window is smaller
+[33mca8c6cd[m trying to minimize the folder size
+[33m6cb72b8[m trying to optimize app size
+[33m175a431[m rearranging the theme and mode presets to load mode preset after theme selection
+[33ma301851[m fixed presets
+[33mb462e1a[m added glitch to cyberpunk preset
+[33m94d6e79[m presets
+[33m1100b1d[m trying to fix themes preset bugs
+[33m58be489[m trying to fix light mode issue in other theme presets.
+[33mb5aa1a1[m added themes.js for personalization
+[33mb49a746[m fixed add category bug
+[33m4e83f46[m updated logos
+[33m68253d2[m replaced pending with overdue, added task count on overdue
+[33m530509e[m edit task issue fixed -- had deleted the line unknowingly
+[33m78eeac7[m due date and duplicate completed
+[33m9a346de[m due date sorting added and duplicate task added
+[33m2509c98[m due date sorting
+[33ma80d356[m due date sorting
+[33m8ea4a06[m done - shortcuts added all bugs fixed
+[33m22f2156[m bugs fixed
+[33md0e0f30[m style.css adding keyboard shortcuts styling
+[33m70a5f09[m app.js, main.js and index.html updated - shortcut keys
+[33m0d50513[m preload.js for global and local shortscuts for to-do app
+[33m616dc63[m toggle themes added completely and fixed settings menu bug
+[33mae16904[m toggle themes added ui fixes needed
+[33m936a57e[m toggle themes
+[33m87c5761[m adding settings - added with all options working drag , always on top , open with windows and accent color : true
+[33m080dad5[m adding settings updating
+[33m59302a4[m adding settings in the titlebar and main app for better customizations
+[33mac2ccf4[m updates os notifications , notify at midnight of the due date , notify 4 hours before the due time
+[33m46dc323[m added os notifications for due
+[33mabcf48f[m changes
+[33m793a8fe[m fixed always on top to work with switching too
+[33m167b64d[m all done works good
+[33m083d95c[m fixing the filter menu with better approach
+[33m1dcafd7[m adding filter row for better and clean ui
+[33m695b20b[m pin at place working
+[33ma4c7a63[m always on top working
+[33m2fd4630[m drag reset always on top still an issue
+[33mf95aec3[m add and edit task fixed
+[33m25a775f[m choose category in create task
+[33m3bd3580[m add category button working
+[33ma018de4[m categories , add a task to daily tasks added
+[33mb1326c7[m fixed minor fab glitch on titlebar while expanding
+[33m4adf073[m ui polishing
+[33m888181e[m opacit removed conflicting with drag I prioritize drag
+[33mbfb06f2[m fixing opacity feature
+[33m95d9864[m opacity on hover vs idle
+[33m05f92d3[m undo delete added
+[33mae31f79[m collapse and position pin workking
+[33m77cda00[m collapse works flawlessly now
+[33m75de19d[m resizing work
+[33m205fff4[m collapsible and expandable , resizing added
+[33m3924d41[m fixed calender and timer overlapping
+[33m3d27aee[m siderbar working
+[33mfc403aa[m  app initial

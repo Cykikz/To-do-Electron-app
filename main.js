@@ -18,10 +18,10 @@ function getIcon() {
 function getSavedBounds() {
   const display = screen.getPrimaryDisplay().workAreaSize;
   return store.get('windowBounds', {
-    x: display.width - 340,
+    x: display.width - 380,
     y: 100,
-    width: 320,
-    height: 600
+    width: 360,
+    height: 620
   });
 }
 

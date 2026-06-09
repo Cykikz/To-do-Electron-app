@@ -33,7 +33,7 @@ function createWindow() {
     y: bounds.y,
     width: bounds.width,
     height: bounds.height,
-    minWidth: 280,
+    minWidth: 320,
     minHeight: 46,
     maxWidth: 560,
     frame: false,
